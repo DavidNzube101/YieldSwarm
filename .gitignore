@@ -1,0 +1,145 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+Manifest.toml
+
+# Julia system image
+*.so
+
+# Julia package manager
+.julia/
+
+# Temporary files
+tmp/
+temp/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+
+# Test files
+test-results/
+coverage/
+
+# Documentation build
+docs/_build/
+
+# Local configuration
+config/local.json
+config/secrets.json
+
+# Wallet files
+wallets/
+*.key
+*.pem
+
+# Transaction logs
+tx-logs/
+transactions/
+
+# Agent state files
+agent-state/
+*.state
+
+# Cache directories
+.cache/
+cache/
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+
+# Kubernetes
+*.yaml
+*.yml
+!docker-compose.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Helm
+charts/*.tgz
+
+# Local development
+.local/
+local/ 

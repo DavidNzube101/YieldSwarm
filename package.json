@@ -1,0 +1,65 @@
+{
+  "name": "yield-swarm",
+  "version": "1.0.0",
+  "description": "Multi-Chain DeFi Yield Optimizer Swarm using JuliaOS",
+  "main": "dist/index.js",
+  "bin": {
+    "yieldswarm": "dist/backend/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "ts-node src/test.ts",
+    "test:dex": "ts-node src/test-dex.ts",
+    "test:apis": "ts-node src/test-apis.ts",
+    "test:wallet": "ts-node src/test-wallet.ts",
+    "cli": "node dist/src/cli/index.js",
+    "cli:build": "tsc && node dist/backend/cli.js",
+    "cli:dev": "ts-node src/cli/index.ts",
+    "start:api": "ts-node backend/api.ts"
+  },
+  "keywords": [
+    "defi",
+    "yield",
+    "optimization",
+    "multi-chain",
+    "ethereum",
+    "bsc",
+    "polygon",
+    "arbitrum",
+    "solana",
+    "juliaos"
+  ],
+  "author": "YieldSwarm Team",
+  "license": "MIT",
+  "dependencies": {
+    "@juliaos/cli": "^0.1.4",
+    "@types/cors": "^2.8.19",
+    "@types/socket.io": "^3.0.2",
+    "axios": "^1.6.0",
+    "commander": "^11.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "ethers": "^5.7.2",
+    "express": "^5.1.0",
+    "julia-bridge": "^0.3.0",
+    "lodash": "^4.17.21",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0",
+    "web3": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.12.12",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/node": "^20.12.12"
+    }
+  }
+}

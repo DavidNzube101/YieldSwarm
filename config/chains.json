@@ -1,0 +1,57 @@
+{
+  "ethereum": {
+    "name": "Ethereum",
+    "chainId": 1,
+    "rpcUrl": "https://mainnet.infura.io/v3/YOUR_INFURA_KEY",
+    "nativeToken": "ETH",
+    "decimals": 18,
+    "explorer": "https://etherscan.io",
+    "dexes": ["uniswap_v3", "sushiswap"],
+    "bridges": ["multichain", "stargate", "hop"],
+    "gasToken": "ETH"
+  },
+  "bsc": {
+    "name": "Binance Smart Chain",
+    "chainId": 56,
+    "rpcUrl": "https://bsc-dataseed1.binance.org",
+    "nativeToken": "BNB",
+    "decimals": 18,
+    "explorer": "https://bscscan.com",
+    "dexes": ["pancakeswap_v3", "sushiswap"],
+    "bridges": ["multichain", "stargate"],
+    "gasToken": "BNB"
+  },
+  "polygon": {
+    "name": "Polygon",
+    "chainId": 137,
+    "rpcUrl": "https://polygon-rpc.com",
+    "nativeToken": "MATIC",
+    "decimals": 18,
+    "explorer": "https://polygonscan.com",
+    "dexes": ["quickswap", "sushiswap"],
+    "bridges": ["multichain", "stargate"],
+    "gasToken": "MATIC"
+  },
+  "arbitrum": {
+    "name": "Arbitrum One",
+    "chainId": 42161,
+    "rpcUrl": "https://arb1.arbitrum.io/rpc",
+    "nativeToken": "ETH",
+    "decimals": 18,
+    "explorer": "https://arbiscan.io",
+    "dexes": ["traderjoe", "uniswap_v3"],
+    "bridges": ["multichain", "stargate", "hop"],
+    "gasToken": "ETH"
+  },
+  "solana": {
+    "name": "Solana",
+    "chainId": 101,
+    "rpcUrl": "https://api.mainnet-beta.solana.com",
+    "nativeToken": "SOL",
+    "decimals": 9,
+    "explorer": "https://solscan.io",
+    "dexes": ["raydium"],
+    "bridges": ["multichain"],
+    "gasToken": "SOL"
+  }
+} 

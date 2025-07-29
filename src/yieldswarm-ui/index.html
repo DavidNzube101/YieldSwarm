@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldSwarm Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>YieldSwarm Dashboard</h1>
+            <div class="connection-status">
+                <span id="connection-indicator" class="status-dot disconnected"></span>
+                <span id="connection-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Agent Management Panel -->
+                <div class="panel" id="agents-panel">
+                    <div class="panel-header">
+                        <h2>Agent Management</h2>
+                        <button class="refresh-btn" id="refresh-agents">↻</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="table-container">
+                            <table id="agents-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agents-tbody">
+                                    <tr class="loading-row">
+                                        <td colspan="5">Loading agents...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swarm Management Panel -->
+                <div class="panel" id="swarms-panel">
+                    <div class="panel-header">
+                        <h2>Swarm Management</h2>
+                        <button class="refresh-btn" id="refresh-swarms">↻</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="table-container">
+                            <table id="swarms-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Agents</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="swarms-tbody">
+                                    <tr class="loading-row">
+                                        <td colspan="5">Loading swarms...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Live Opportunity Feed -->
+                <div class="panel" id="opportunities-panel">
+                    <div class="panel-header">
+                        <h2>Live Opportunity Feed</h2>
+                        <span class="opportunity-count">0 opportunities</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="table-container">
+                            <table id="opportunities-table">
+                                <thead>
+                                    <tr>
+                                        <th>Chain</th>
+                                        <th>DEX</th>
+                                        <th>Pool</th>
+                                        <th>APY (%)</th>
+                                        <th>TVL ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="opportunities-tbody">
+                                    <tr class="no-data-row">
+                                        <td colspan="5">Waiting for opportunities...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Allocation -->
+                <div class="panel" id="portfolio-panel">
+                    <div class="panel-header">
+                        <h2>Portfolio Allocation</h2>
+                    </div>
+                    <div class="panel-content">
+                        <div class="portfolio-container">
+                            <div class="chart-container">
+                                <canvas id="portfolio-chart" width="200" height="200"></canvas>
+                                <div class="chart-center-text">
+                                    <span id="total-allocation">0%</span>
+                                    <small>Allocated</small>
+                                </div>
+                            </div>
+                            <div class="allocation-table">
+                                <table id="allocation-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Opportunity ID</th>
+                                            <th>Chain</th>
+                                            <th>Allocation (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="allocation-tbody">
+                                        <tr class="no-data-row">
+                                            <td colspan="3">No allocations</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Logs & Risk Alerts -->
+                <div class="panel" id="logs-panel">
+                    <div class="panel-header">
+                        <h2>System Logs & Risk Alerts</h2>
+                        <button class="clear-btn" id="clear-logs">Clear</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="logs-container" id="logs-container">
+                            <div class="log-entry system">
+                                <span class="timestamp">[System]</span>
+                                <span class="message">Dashboard initialized</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
