@@ -3,14 +3,15 @@ import { AgentOrchestrator } from '../../backend/AgentOrchestrator';
 import { SwarmOrchestrator } from '../../backend/SwarmOrchestrator';
 import { CustomJuliaBridge } from '../../backend/CustomJuliaBridge';
 import eventBus from '../events/EventBus';
+import { AgentCommunication } from './AgentCommunication';
 
 import { EventEmitter } from 'events';
 import { SwarmMessage, MessageType, MessagePriority } from '../types';
 
-export interface IAgentCommunication {
-  on(event: string | symbol, listener: (...args: any[]) => void): this;
-  emit(event: string | symbol, ...args: any[]): boolean;
-  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
+export interface IAgentCommunication extends EventEmitter {
+  registerHandler(agentId: string, handler: (message: SwarmMessage) => Promise<void>): void;
+  broadcastMessage(type: MessageType, data: any, source: string, priority?: MessagePriority): Promise<void>;
+  sendToAgent(agentId: string, type: MessageType, data: any, source: string, priority?: MessagePriority): Promise<void>;
 }
 
 export class SwarmCoordinator extends EventEmitter {
@@ -19,6 +20,9 @@ export class SwarmCoordinator extends EventEmitter {
   private bridge: CustomJuliaBridge;
   private agentOrchestrator: AgentOrchestrator;
   private swarmOrchestrator: SwarmOrchestrator;
+  private recentAlerts: SwarmMessage[] = [];
+  private MAX_ALERTS = 100; // Keep last 100 alerts
+  private agentCommunication: AgentCommunication; // Internal communication bus
 
   private constructor() {
     super();
@@ -26,14 +30,11 @@ export class SwarmCoordinator extends EventEmitter {
     this.bridge = new CustomJuliaBridge();
     this.agentOrchestrator = new AgentOrchestrator(this.bridge);
     this.swarmOrchestrator = new SwarmOrchestrator(this.bridge);
+    this.agentCommunication = new AgentCommunication();
   }
 
   public getAgentCommunication(): IAgentCommunication {
-    return {
-      on: this.on.bind(this),
-      emit: this.emit.bind(this),
-      removeListener: this.removeListener.bind(this),
-    };
+    return this.agentCommunication;
   }
 
   public static getInstance(): SwarmCoordinator {
@@ -49,6 +50,7 @@ export class SwarmCoordinator extends EventEmitter {
       await this.bridge.connect();
       this.logger.success('Swarm Coordinator initialized and connected to Julia backend.');
       this._subscribeToJuliaEvents();
+      
     } catch (error) {
       this.logger.error('Failed to initialize Swarm Coordinator:', error);
       throw error;
@@ -61,7 +63,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('agent_created', (data: any) => {
       try {
         this.logger.info(`Julia Event: agent_created - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('agent_created', data);
+        this.agentCommunication.broadcastMessage(MessageType.AGENT_CREATED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing agent_created event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -70,7 +72,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('agent_started', (data: any) => {
       try {
         this.logger.info(`Julia Event: agent_started - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('agent_started', data);
+        this.agentCommunication.broadcastMessage(MessageType.AGENT_STARTED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing agent_started event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -79,7 +81,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('agent_stopped', (data: any) => {
       try {
         this.logger.info(`Julia Event: agent_stopped - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('agent_stopped', data);
+        this.agentCommunication.broadcastMessage(MessageType.AGENT_STOPPED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing agent_stopped event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -88,7 +90,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('swarm_created', (data: any) => {
       try {
         this.logger.info(`Julia Event: swarm_created - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('swarm_created', data);
+        this.agentCommunication.broadcastMessage(MessageType.SWARM_CREATED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing swarm_created event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -97,7 +99,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('swarm_started', (data: any) => {
       try {
         this.logger.info(`Julia Event: swarm_started - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('swarm_started', data);
+        this.agentCommunication.broadcastMessage(MessageType.SWARM_STARTED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing swarm_started event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -106,7 +108,7 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('swarm_stopped', (data: any) => {
       try {
         this.logger.info(`Julia Event: swarm_stopped - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('swarm_stopped', data);
+        this.agentCommunication.broadcastMessage(MessageType.SWARM_STOPPED, data, 'julia');
       } catch (e: any) {
         this.logger.error(`Error processing swarm_stopped event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
       }
@@ -115,9 +117,19 @@ export class SwarmCoordinator extends EventEmitter {
     eventBus.on('swarm_optimized', (data: any) => {
       try {
         this.logger.info(`Julia Event: swarm_optimized - Raw Data: ${JSON.stringify(data)}`);
-        this.emit('swarm_optimized', data);
+        this.agentCommunication.broadcastMessage(MessageType.PORTFOLIO_UPDATE, data.result, 'julia'); // Map to PORTFOLIO_UPDATE
       } catch (e: any) {
         this.logger.error(`Error processing swarm_optimized event: ${e.message}, Raw Data: ${JSON.stringify(data)}`);
+      }
+    });
+
+    // Listen for YIELD_OPPORTUNITY messages from the eventBus and re-emit them
+    eventBus.on(MessageType.YIELD_OPPORTUNITY, (message: SwarmMessage) => {
+      try {
+        this.logger.info(`SwarmCoordinator: Re-emitting YIELD_OPPORTUNITY - ID: ${message.id}`);
+        this.agentCommunication.broadcastMessage(MessageType.YIELD_OPPORTUNITY, message.data, message.source, message.priority);
+      } catch (e: any) {
+        this.logger.error(`Error re-emitting YIELD_OPPORTUNITY: ${e.message}, Raw Data: ${JSON.stringify(message)}`);
       }
     });
 
@@ -132,7 +144,20 @@ export class SwarmCoordinator extends EventEmitter {
       timestamp: Date.now(),
       priority
     };
+    this.agentCommunication.broadcast(message);
     this.emit(type, message);
+
+    // Store RISK_ALERT messages
+    if (type === MessageType.RISK_ALERT) {
+      this.recentAlerts.unshift(message); // Add to the beginning
+      if (this.recentAlerts.length > this.MAX_ALERTS) {
+        this.recentAlerts.pop(); // Remove the oldest if over limit
+      }
+    }
+  }
+
+  public getRecentAlerts(): SwarmMessage[] {
+    return [...this.recentAlerts];
   }
 
   async shutdown(): Promise<void> {
@@ -140,16 +165,22 @@ export class SwarmCoordinator extends EventEmitter {
     try {
       await this.bridge.disconnect();
       this.logger.success('Swarm Coordinator shut down.');
-    } catch (error) {
+    }  catch (error) {
       this.logger.error('Failed to shut down Swarm Coordinator:', error);
       throw error;
     }
   }
 
   // Agent Management Methods
-  async createAgent(name: string, type: string, config: any): Promise<any> {
-    this.logger.info(`Creating agent: ${name} (${type})...`);
-    const agent = await this.agentOrchestrator.create({ name, type, config });
+  async createAgent({ name, type, chain, config }: { name: string; type: string; chain?: string; config: any }): Promise<any> {
+    this.logger.info(`Creating agent: ${name} (${type}) on chain: ${chain}`);
+    
+    const createParams: { name: string; type: string; chain?: string; config: any; } = { name, type, config };
+    if (chain) {
+      createParams.chain = chain;
+    }
+
+    const agent = await this.agentOrchestrator.create(createParams);
     this.logger.success(`Agent ${name} created with ID: ${agent.id}`);
     return agent;
   }
@@ -244,6 +275,13 @@ export class SwarmCoordinator extends EventEmitter {
     const swarm = await this.swarmOrchestrator.removeAgentFromSwarm(swarmId, agentId);
     this.logger.success(`Agent ${agentId} removed from swarm ${swarmId}.`);
     return swarm;
+  }
+
+  async getAvailableAlgorithms(): Promise<any[]> {
+    this.logger.info('Fetching available algorithms from Julia...');
+    const algorithms = await this.bridge.runCommand('portfolio.get_available_algorithms', {});
+    this.logger.success(`Found ${algorithms.length} available algorithms.`);
+    return algorithms;
   }
 }
 

@@ -2,6 +2,7 @@ import { Logger } from './utils/Logger';
 import { RealDEXIntegrations } from './defi/RealDEXIntegrations';
 import * as fs from 'fs';
 import * as path from 'path';
+import { globalConfig } from '../src/config/globalConfig';
 
 const logger = new Logger('DEX-Test');
 
@@ -16,7 +17,8 @@ async function testDEXIntegrations() {
       logger.info(`\n📊 Testing ${chain.toUpperCase()}...`);
       
       try {
-        const dexIntegrations = new RealDEXIntegrations(chain);
+        const dexIntegrations = new RealDEXIntegrations(chain, globalConfig);
+
         
         // Test getting opportunities
         const opportunities = await dexIntegrations.getYieldOpportunities();

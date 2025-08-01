@@ -1,9 +1,10 @@
-import { ApiClient } from '../utils/JuliaOSMock';
+import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { PortfolioAllocation, RiskAlert, RiskAlertType, RiskSeverity, AgentStatus, SwarmMessage, MessageType, MessagePriority } from '../types';
+import { calculateSeverity } from '../utils/riskCalculations';
 
 export class RiskAgent {
-  private client: ApiClient;
+  private client: IAgentCommunication;
   private logger: Logger;
   private status: AgentStatus = AgentStatus.INACTIVE;
   private isRunning: boolean = false;
@@ -11,7 +12,7 @@ export class RiskAgent {
   private riskThresholds: Map<RiskAlertType, number> = new Map();
   private monitoringInterval: NodeJS.Timeout | null = null;
 
-  constructor(client: ApiClient) {
+  constructor(client: IAgentCommunication) {
     this.client = client;
     this.logger = new Logger('RiskAgent');
     this.initializeRiskThresholds();
@@ -124,7 +125,7 @@ export class RiskAgent {
       return {
         id: `il-risk-${Date.now()}`,
         type: RiskAlertType.HIGH_IMPERMANENT_LOSS,
-        severity: this.calculateSeverity(highILAllocations.length, this.currentPortfolio.length),
+        severity: calculateSeverity(highILAllocations.length, this.currentPortfolio.length),
         message: `High impermanent loss risk detected in ${highILAllocations.length} allocations`,
         affectedOpportunities: highILAllocations.map(a => a.opportunityId),
         timestamp: Date.now(),
@@ -152,7 +153,7 @@ export class RiskAgent {
       return {
         id: `liquidity-risk-${Date.now()}`,
         type: RiskAlertType.LOW_LIQUIDITY,
-        severity: this.calculateSeverity(lowLiquidityAllocations.length, this.currentPortfolio.length),
+        severity: calculateSeverity(lowLiquidityAllocations.length, this.currentPortfolio.length),
         message: `Low liquidity risk detected in ${lowLiquidityAllocations.length} allocations`,
         affectedOpportunities: lowLiquidityAllocations.map(a => a.opportunityId),
         timestamp: Date.now(),
@@ -208,7 +209,7 @@ export class RiskAgent {
       return {
         id: `volatility-risk-${Date.now()}`,
         type: RiskAlertType.HIGH_VOLATILITY,
-        severity: this.calculateSeverity(highVolatilityAllocations.length, this.currentPortfolio.length),
+        severity: calculateSeverity(highVolatilityAllocations.length, this.currentPortfolio.length),
         message: `High volatility risk detected in ${highVolatilityAllocations.length} allocations`,
         affectedOpportunities: highVolatilityAllocations.map(a => a.opportunityId),
         timestamp: Date.now(),
@@ -241,7 +242,7 @@ export class RiskAgent {
       return {
         id: `cross-chain-risk-${Date.now()}`,
         type: RiskAlertType.CROSS_CHAIN_RISK,
-        severity: this.calculateSeverity(highChainConcentration.length, chainAllocations.size),
+        severity: calculateSeverity(highChainConcentration.length, chainAllocations.size),
         message: `High cross-chain concentration risk detected in ${highChainConcentration.map(([chain]) => chain).join(', ')}`,
         affectedOpportunities: this.currentPortfolio
           .filter(a => highChainConcentration.some(([chain]) => chain === a.chain))
@@ -258,26 +259,9 @@ export class RiskAgent {
     return null;
   }
 
-  private calculateSeverity(affectedCount: number, totalCount: number): RiskSeverity {
-    const percentage = affectedCount / totalCount;
-    
-    if (percentage > 0.5) return RiskSeverity.CRITICAL;
-    if (percentage > 0.3) return RiskSeverity.HIGH;
-    if (percentage > 0.1) return RiskSeverity.MEDIUM;
-    return RiskSeverity.LOW;
-  }
-
-  private async broadcastRiskAlert(alert: RiskAlert): Promise<void> {
-    const message: SwarmMessage = {
-      id: `risk-alert-${alert.id}`,
-      type: MessageType.RISK_ALERT,
-      source: 'risk-management',
-      data: alert,
-      timestamp: Date.now(),
-      priority: this.getAlertPriority(alert.severity)
-    };
-
-    await this.client.swarm.broadcast(message);
+  
+    private async broadcastRiskAlert(alert: RiskAlert): Promise<void> {
+    await this.client.broadcastMessage(MessageType.RISK_ALERT, alert, 'risk-management', this.getAlertPriority(alert.severity));
     this.logger.warn(`Broadcasted risk alert: ${alert.type} - ${alert.message}`);
   }
 
@@ -302,6 +286,9 @@ export class RiskAgent {
     switch (message.type) {
       case MessageType.PORTFOLIO_UPDATE:
         await this.assessPortfolioRisk(message.data);
+        break;
+      case MessageType.RISK_ALERT:
+        // Ignore our own alerts
         break;
       default:
         this.logger.debug(`Unhandled message type: ${message.type}`);

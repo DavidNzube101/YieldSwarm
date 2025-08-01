@@ -1,10 +1,10 @@
-import { ApiClient } from '../utils/JuliaOSMock';
+import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
-import { YieldOpportunity, AgentStatus, SwarmMessage, MessageType, MessagePriority, Pool } from '../types';
+import { YieldOpportunity, AgentStatus, MessageType, MessagePriority, Pool } from '../types';
 import { RealDEXIntegrations } from '../defi/RealDEXIntegrations';
 
 export class DiscoveryAgent {
-  private client: ApiClient;
+  private client: IAgentCommunication;
   private chain: string;
   private logger: Logger;
   private dexIntegrations: RealDEXIntegrations;
@@ -12,11 +12,23 @@ export class DiscoveryAgent {
   private isRunning: boolean = false;
   private scanInterval: NodeJS.Timeout | null = null;
 
-  constructor(chain: string, client: ApiClient) {
+  constructor(chain: string, client: IAgentCommunication, private globalConfig: any) {
     this.client = client;
     this.chain = chain;
     this.logger = new Logger(`DiscoveryAgent-${chain}`);
-    this.dexIntegrations = new RealDEXIntegrations(chain);
+    this.dexIntegrations = new RealDEXIntegrations(chain, globalConfig);
+  }
+
+  async reconfigure(newConfig: any): Promise<void> {
+    this.logger.info(`Reconfiguring Discovery Agent for ${this.chain}`);
+    await this.shutdown(); // Stop existing processes
+
+    // Update config and re-initialize
+    this.globalConfig = newConfig;
+    this.dexIntegrations = new RealDEXIntegrations(this.chain, this.globalConfig);
+    
+    await this.start(); // Restart with new config
+    this.logger.info(`Discovery Agent for ${this.chain} reconfigured and restarted.`);
   }
 
   async start(): Promise<void> {
@@ -185,6 +197,11 @@ export class DiscoveryAgent {
   }
 
   private filterOpportunities(opportunities: YieldOpportunity[]): YieldOpportunity[] {
+    // If in mock data mode, bypass filtering to ensure opportunities are always displayed
+    if (this.dexIntegrations.globalConfig.dataMode === 'mock') {
+      return opportunities;
+    }
+
     // Filter opportunities based on criteria
     return opportunities.filter(opp => {
       // Minimum APY threshold
@@ -201,32 +218,15 @@ export class DiscoveryAgent {
   }
 
   private async broadcastOpportunity(opportunity: YieldOpportunity): Promise<void> {
-    const message: SwarmMessage = {
-      id: `opportunity-${opportunity.id}-${Date.now()}`,
-      type: MessageType.YIELD_OPPORTUNITY,
-      source: `${this.chain}-discovery`,
-      data: opportunity,
-      timestamp: Date.now(),
-      priority: MessagePriority.HIGH
-    };
-
-    await this.client.swarm.broadcast(message);
+    await this.client.broadcastMessage(MessageType.YIELD_OPPORTUNITY, opportunity, `${this.chain}-discovery`, MessagePriority.HIGH);
     this.logger.debug(`Broadcasted opportunity: ${opportunity.id} with ${opportunity.apy.toFixed(2)}% APY`);
-    this.logger.info(`[DEBUG] DiscoveryAgent broadcasted opportunity: ${opportunity.id}`);
+    this.logger.info(`DiscoveryAgent broadcasted opportunity: ${opportunity.id}`);
   }
 
   private async loadChainConfig(): Promise<any> {
     // Load chain configuration from config file
     const config = await import('../../config/chains.json');
     return (config.default as Record<string, any>)[this.chain] || {};
-  }
-
-  async onMessage(message: SwarmMessage): Promise<void> {
-    // Handle incoming messages
-    this.logger.debug(`Received message: ${message.type}`);
-    
-    // Discovery agents typically don't need to handle many incoming messages
-    // but they can respond to specific requests
   }
 
   async shutdown(): Promise<void> {

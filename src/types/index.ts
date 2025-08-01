@@ -111,7 +111,13 @@ export enum MessageType {
   RISK_ALERT = 'risk_alert',
   EXECUTION_REQUEST = 'execution_request',
   HEARTBEAT = 'heartbeat',
-  SHUTDOWN = 'shutdown'
+  SHUTDOWN = 'shutdown',
+  AGENT_CREATED = 'agent_created',
+  AGENT_STARTED = 'agent_started',
+  AGENT_STOPPED = 'agent_stopped',
+  SWARM_CREATED = 'swarm_created',
+  SWARM_STARTED = 'swarm_started',
+  SWARM_STOPPED = 'swarm_stopped',
 }
 
 export enum MessagePriority {

@@ -10,7 +10,8 @@ import { DiscoveryAgent } from '../src/agents/DiscoveryAgent';
 import { AnalysisAgent } from '../src/agents/AnalysisAgent';
 import { RiskAgent } from '../src/agents/RiskAgent';
 import { ExecutionAgent } from '../src/agents/ExecutionAgent';
-import { ApiClient } from '../src/utils/JuliaOSMock';
+import { MessageType } from '../src/types';
+import { RiskService } from './RiskService';
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,108 +24,14 @@ const io = new Server(httpServer, {
 const port = process.env['API_PORT'] || 3000;
 const logger = new Logger('API');
 const coordinator = SwarmCoordinator.getInstance();
+const riskService = RiskService.getInstance();
 
-let discoveryAgentInstance: DiscoveryAgent | undefined;
-let analysisAgentInstance: AnalysisAgent | undefined;
-let riskAgentInstance: RiskAgent | undefined;
+const discoveryAgents = new Map<string, DiscoveryAgent>();
+let analysisAgent: AnalysisAgent | undefined;
+let riskAgent: RiskAgent | undefined;
 let executionAgentInstance: ExecutionAgent | undefined;
 
-let discoveryAgentJuliaId: string | undefined;
-let analysisAgentJuliaId: string | undefined;
-let riskAgentJuliaId: string | undefined;
-let defaultSwarmJuliaId: string | undefined;
-
-async function startAgentsAndSwarm() {
-  try {
-    logger.info('Creating Julia-side agents...');
-    const discoveryAgentJulia = await coordinator.createAgent(
-      'DefaultDiscoveryAgent',
-      'Discovery',
-      { chains: ['solana'] } // Default chains for discovery
-    );
-    if (!discoveryAgentJulia || !discoveryAgentJulia.id) {
-      logger.error('Failed to create DefaultDiscoveryAgent. Exiting.');
-      process.exit(1);
-    }
-    discoveryAgentJuliaId = discoveryAgentJulia.id;
-
-    const analysisAgentJulia = await coordinator.createAgent(
-      'DefaultAnalysisAgent',
-      'Analysis',
-      { tolerance: 0.8 }
-    );
-    if (!analysisAgentJulia || !analysisAgentJulia.id) {
-      logger.error('Failed to create DefaultAnalysisAgent. Exiting.');
-      process.exit(1);
-    }
-    analysisAgentJuliaId = analysisAgentJulia.id;
-
-    const riskAgentJulia = await coordinator.createAgent(
-      'DefaultRiskAgent',
-      'Risk',
-      {}
-    );
-    if (!riskAgentJulia || !riskAgentJulia.id) {
-      logger.error('Failed to create DefaultRiskAgent. Exiting.');
-      process.exit(1);
-    }
-    riskAgentJuliaId = riskAgentJulia.id;
-    logger.success('Julia-side agents created.');
-
-    logger.info('Instantiating and starting Node.js agent instances...');
-    const apiClient = new ApiClient(coordinator.getAgentCommunication());
-    discoveryAgentInstance = new DiscoveryAgent('solana', apiClient);
-    analysisAgentInstance = new AnalysisAgent(apiClient);
-    riskAgentInstance = new RiskAgent(apiClient);
-    executionAgentInstance = new ExecutionAgent('solana', apiClient);
-
-    await discoveryAgentInstance.start();
-    await analysisAgentInstance.start();
-    await riskAgentInstance.start();
-    await executionAgentInstance.start();
-    logger.success('Node.js agent instances started.');
-
-    const existingSwarms = await coordinator.listSwarms();
-    if (existingSwarms.length === 0) {
-      logger.info('No existing swarms found, creating a default swarm...');
-      const newSwarm = await coordinator.createSwarm(
-        'DefaultYieldSwarm',
-        { type: 'PortfolioOptimization', params: {} },
-        { objective: 'maximize_yield' }
-      );
-      defaultSwarmJuliaId = newSwarm.id;
-      logger.success(`Default swarm '${newSwarm.name}' created with ID: ${newSwarm.id}`);
-
-      logger.info('Adding agents to the default swarm...');
-      if (defaultSwarmJuliaId && discoveryAgentJuliaId && analysisAgentJuliaId && riskAgentJuliaId) {
-        await coordinator.addAgentToSwarm(defaultSwarmJuliaId!, discoveryAgentJuliaId!);
-        await coordinator.addAgentToSwarm(defaultSwarmJuliaId!, analysisAgentJuliaId!);
-        await coordinator.addAgentToSwarm(defaultSwarmJuliaId!, riskAgentJuliaId!);
-        logger.success('Agents added to default swarm.');
-      } else {
-        logger.error('Failed to add agents to swarm: missing IDs.');
-        process.exit(1);
-      }
-
-      await coordinator.startSwarm(defaultSwarmJuliaId!);
-      logger.success(`Default swarm ${defaultSwarmJuliaId} started.`);
-    } else {
-      defaultSwarmJuliaId = existingSwarms[0].id;
-      logger.info(`Using existing swarm with ID: ${defaultSwarmJuliaId}`);
-      const swarmStatus = await coordinator.getSwarm(defaultSwarmJuliaId!);
-      if (swarmStatus.status !== 'running') {
-        await coordinator.startSwarm(defaultSwarmJuliaId!);
-        logger.success(`Existing swarm ${defaultSwarmJuliaId} started.`);
-      }
-    }
-  } catch (error) {
-    logger.error('Failed to start agents and swarm:', error);
-    if (error instanceof Error) {
-      logger.error('Stack trace:', error.stack);
-    }
-    process.exit(1);
-  }
-}
+import { globalConfig } from '../src/config/globalConfig';
 
 app.use(cors());
 app.use(express.json());
@@ -132,7 +39,40 @@ app.use(express.json());
 // Serve the UI
 app.use('/dashboard', express.static(path.join(__dirname, '../src/yieldswarm-ui')));
 
+// Serve Socket.IO client locally
+app.use('/socket.io', express.static(path.join(__dirname, '../socket.io/client-dist')));
+
+// POST /config
+// Description: Updates the global configuration, including data mode and active chains.
+// Reconfigures and shuts down discovery agents based on active chains.
+app.post('/config', async (req, res) => {
+  try {
+    const { dataMode, activeChains } = req.body;
+    globalConfig.dataMode = dataMode;
+    globalConfig.activeChains = activeChains;
+    logger.info(`Updated global configuration: Data Mode = ${globalConfig.dataMode}, Active Chains = ${globalConfig.activeChains.join(', ')}`);
+
+    // Reconfigure active discovery agents
+    for (const [chain, agent] of discoveryAgents.entries()) {
+      if (activeChains.includes(chain)) {
+        logger.info(`Reconfiguring Discovery Agent for ${chain}...`);
+        await agent.reconfigure(globalConfig);
+      } else {
+        // If a chain is no longer active, shut down its agent
+        logger.info(`Shutting down Discovery Agent for inactive chain ${chain}...`);
+        await agent.shutdown();
+        discoveryAgents.delete(chain);
+      }
+    }
+
+    return res.json({ success: true, message: 'Configuration applied and agents reconfigured' });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // WebSocket connection
+// Description: Handles WebSocket connections and disconnections, logging client activity.
 io.on('connection', (socket: any) => {
   logger.info(`New client connected: ${socket.id}`);
 
@@ -142,120 +82,247 @@ io.on('connection', (socket: any) => {
 });
 
 // Forward events from the coordinator to the UI
+// Description: Listens for various events from the SwarmCoordinator and emits them to connected WebSocket clients.
 if (coordinator) {
-  coordinator.on('new_opportunity', (data: any) => io.emit('new_opportunity', data));
-  coordinator.on('portfolio_updated', (data: any) => io.emit('portfolio_updated', data));
-  coordinator.on('risk_alert', (data: any) => io.emit('risk_alert', data));
+  // Only listen to SwarmCoordinator for Julia-based events (swarm_optimized -> portfolio_update)
+  coordinator.on(MessageType.PORTFOLIO_UPDATE, (message: any) => {
+    logger.info(`API: Forwarding PORTFOLIO_UPDATE from SwarmCoordinator to WebSocket clients`);
+    io.emit(MessageType.PORTFOLIO_UPDATE, message.data);
+  });
+  
+  // Agent lifecycle events
   coordinator.on('agent_created', (data: any) => io.emit('agent_created', data));
   coordinator.on('agent_started', (data: any) => io.emit('agent_started', data));
   coordinator.on('agent_stopped', (data: any) => io.emit('agent_stopped', data));
   coordinator.on('swarm_created', (data: any) => io.emit('swarm_created', data));
   coordinator.on('swarm_started', (data: any) => io.emit('swarm_started', data));
   coordinator.on('swarm_stopped', (data: any) => io.emit('swarm_stopped', data));
+
+  // Listen to events from AgentCommunication (where agents broadcast their messages)
+  const agentCommunication = coordinator.getAgentCommunication();
+  if (agentCommunication) {
+    agentCommunication.on(MessageType.YIELD_OPPORTUNITY, (message: any): void => {
+      logger.info(`API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients`);
+      io.emit(MessageType.YIELD_OPPORTUNITY, message.data);
+    });
+    agentCommunication.on(MessageType.PORTFOLIO_UPDATE, (message: any) => {
+      logger.info(`API: Forwarding PORTFOLIO_UPDATE from AgentCommunication to WebSocket clients`);
+      io.emit(MessageType.PORTFOLIO_UPDATE, message.data);
+    });
+    agentCommunication.on(MessageType.RISK_ALERT, (message: any) => {
+      logger.info(`API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients`);
+      io.emit(MessageType.RISK_ALERT, message.data);
+    });
+  }
+
+  // Debug: Log all events being emitted to WebSocket clients
+const originalEmit = io.emit;
+io.emit = function(event, ...args) {
+  logger.info(`DEBUG: Emitting WebSocket event '${event}' with data:`, JSON.stringify(args[0]));
+  
+  // Additional debug for portfolio_update specifically
+  if (event === 'portfolio_update') {
+    logger.info(`DEBUG: portfolio_update event details - Connected clients: ${io.sockets.sockets.size}`);
+    logger.info(`DEBUG: portfolio_update data structure:`, JSON.stringify(args[0], null, 2));
+  }
+  
+  return originalEmit.call(this, event, ...args);
+};
+
+
 }
 
-// Agent Endpoints
+// POST /mock-opportunities
+// Description: Allows users to broadcast mock yield opportunities to the system.
+app.post('/mock-opportunities', async (req, res) => {
+  try {
+    const opportunities = req.body; // Expecting an array of YieldOpportunity
+    if (!Array.isArray(opportunities)) {
+      return res.status(400).json({ error: 'Request body must be an array of yield opportunities.' });
+    }
+
+    logger.info(`Received ${opportunities.length} mock opportunities.`);
+
+    for (const opp of opportunities) {
+      // Assuming the mock opportunity directly matches the SwarmMessage data structure
+      // In a real scenario, you might need to transform it.
+      coordinator.broadcastMessage(MessageType.YIELD_OPPORTUNITY, opp, 'mock-data-source');
+    }
+
+    return res.json({ success: true, message: `Broadcasted ${opportunities.length} mock opportunities.` });
+  } catch (error: any) {
+    logger.error('Error processing mock opportunities:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /agents
+// Description: Retrieves a list of all agents managed by the SwarmCoordinator.
 app.get('/agents', async (_req, res) => {
   try {
     const agents = await coordinator.listAgents();
-    res.json(agents);
+    return res.json(agents);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// POST /agents
+// Description: Creates a new agent (Discovery, Analysis, Risk, or Execution).
+// For Discovery agents, it creates one for each active chain.
 app.post('/agents', async (req, res) => {
   try {
-    const { name, type, config } = req.body;
-    const agent = await coordinator.createAgent(name, type, config);
-    res.status(201).json(agent);
+    const { name, type, chain, config } = req.body;
+    logger.info(`Received request to create agent: ${name}, type: ${type}, chain: ${chain}`);
+    const agentCommunication = coordinator.getAgentCommunication();
+
+    // For discovery agents, we might have specific logic, but the creation call is the same
+    const juliaAgent = await coordinator.createAgent({ name, type, chain, config });
+
+    if (type === 'discovery' && chain) {
+      const discoveryAgent = new DiscoveryAgent(chain, agentCommunication, globalConfig);
+      await discoveryAgent.start();
+      discoveryAgents.set(chain, discoveryAgent);
+    } else {
+      let nodeAgentInstance: AnalysisAgent | RiskAgent | ExecutionAgent | undefined;
+      switch (type) {
+        case 'analysis':
+          nodeAgentInstance = new AnalysisAgent(agentCommunication);
+          analysisAgent = nodeAgentInstance;
+          agentCommunication.registerHandler('analysis-agent', nodeAgentInstance.onMessage.bind(nodeAgentInstance));
+          break;
+        case 'risk':
+          nodeAgentInstance = new RiskAgent(agentCommunication);
+          riskAgent = nodeAgentInstance;
+          agentCommunication.registerHandler('risk-agent', nodeAgentInstance.onMessage.bind(nodeAgentInstance));
+          break;
+        case 'execution':
+           if (!chain) throw new Error('Execution agent requires a chain.');
+          nodeAgentInstance = new ExecutionAgent(chain, agentCommunication, globalConfig);
+          executionAgentInstance = nodeAgentInstance;
+          agentCommunication.registerHandler('execution-agent', nodeAgentInstance.onMessage.bind(nodeAgentInstance));
+          break;
+      }
+       if (nodeAgentInstance) {
+        await nodeAgentInstance.start();
+      }
+    }
+
+    return res.status(201).json(juliaAgent);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    logger.error('Error creating agent:', error);
+    if (error instanceof Error) {
+      logger.error('Stack trace:', error.stack);
+    }
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// GET /agents/:id
+// Description: Retrieves a specific agent by its ID.
 app.get('/agents/:id', async (req, res) => {
   try {
     const agent = await coordinator.getAgent(req.params.id);
     if (agent) {
-      res.json(agent);
+      return res.json(agent);
     } else {
-      res.status(404).json({ error: 'Agent not found' });
+      return res.status(404).json({ error: 'Agent not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// POST /agents/:id/start
+// Description: Starts a specific agent by its ID.
 app.post('/agents/:id/start', async (req, res) => {
   try {
     const agent = await coordinator.startAgent(req.params.id);
-    res.json(agent);
+    return res.json(agent);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/agents/:id/stop', async (req, res) => {
-  try {
-    const agent = await coordinator.stopAgent(req.params.id);
-    res.json(agent);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
+// DELETE /agents/:id
+// Description: Deletes a specific agent by its ID.
 app.delete('/agents/:id', async (req, res) => {
   try {
     const result = await coordinator.deleteAgent(req.params.id);
-    res.json(result);
+    return res.json(result);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-// Swarm Endpoints
+// GET /risk-alerts
+// Description: Retrieves a list of all risk alerts.
+app.get('/risk-alerts', async (_req, res) => {
+  try {
+    const alerts = riskService.getAlerts();
+    return res.json(alerts);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /swarms
+// Description: Retrieves a list of all swarms managed by the SwarmCoordinator.
 app.get('/swarms', async (_req, res) => {
   try {
     const swarms = await coordinator.listSwarms();
-    res.json(swarms);
+    return res.json(swarms);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// POST /swarms
+// Description: Creates a new swarm.
 app.post('/swarms', async (req, res) => {
   try {
-    const { name, algorithm, config } = req.body;
+    const { name, algorithm, agents, config } = req.body;
     const swarm = await coordinator.createSwarm(name, algorithm, config);
-    res.status(201).json(swarm);
+
+    if (agents && agents.length > 0) {
+      for (const agentId of agents) {
+        await coordinator.addAgentToSwarm(swarm.id, agentId);
+      }
+    }
+    return res.status(201).json(swarm);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// GET /swarms/:id
+// Description: Retrieves a specific swarm by its ID.
 app.get('/swarms/:id', async (req, res) => {
   try {
     const swarm = await coordinator.getSwarm(req.params.id);
     if (swarm) {
-      res.json(swarm);
+      return res.json(swarm);
     } else {
-      res.status(404).json({ error: 'Swarm not found' });
+      return res.status(404).json({ error: 'Swarm not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// POST /swarms/:id/start
+// Description: Starts a specific swarm by its ID.
 app.post('/swarms/:id/start', async (req, res) => {
   try {
     const swarm = await coordinator.startSwarm(req.params.id);
-    res.json(swarm);
+    return res.json(swarm);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
+// POST /swarms/:id/stop
+// Description: Stops a specific swarm by its ID.
 app.post('/swarms/:id/stop', async (req, res) => {
   try {
     const swarm = await coordinator.stopSwarm(req.params.id);
@@ -266,6 +333,8 @@ app.post('/swarms/:id/stop', async (req, res) => {
   }
 });
 
+// DELETE /swarms/:id
+// Description: Deletes a specific swarm by its ID.
 app.delete('/swarms/:id', async (req, res) => {
   try {
     const result = await coordinator.deleteSwarm(req.params.id);
@@ -276,6 +345,8 @@ app.delete('/swarms/:id', async (req, res) => {
   }
 });
 
+// POST /swarms/:swarmId/add-agent/:agentId
+// Description: Adds an agent to a specific swarm.
 app.post('/swarms/:swarmId/add-agent/:agentId', async (req, res) => {
   try {
     const { swarmId, agentId } = req.params;
@@ -287,6 +358,8 @@ app.post('/swarms/:swarmId/add-agent/:agentId', async (req, res) => {
   }
 });
 
+// DELETE /swarms/:swarmId/remove-agent/:agentId
+// Description: Removes an agent from a specific swarm.
 app.delete('/swarms/:swarmId/remove-agent/:agentId', async (req, res) => {
   try {
     const { swarmId, agentId } = req.params;
@@ -298,10 +371,20 @@ app.delete('/swarms/:swarmId/remove-agent/:agentId', async (req, res) => {
   }
 });
 
+// Algorithms Endpoint
+app.get('/algorithms', async (_req, res) => {
+  try {
+    const algorithms = await coordinator.getAvailableAlgorithms();
+    return res.json(algorithms);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Start the server
+// Description: Initializes the API server and sets up global error handling and graceful shutdown procedures.
 httpServer.listen(port, () => {
   logger.info(`API server listening on port ${port}`);
-  startAgentsAndSwarm();
 
   // Global error handling for agents and swarm
   process.on('uncaughtException', (error) => {
@@ -318,30 +401,14 @@ httpServer.listen(port, () => {
   process.on('SIGINT', async () => {
     logger.info('Received SIGINT. Shutting down API, agents, and swarm...');
     // Stop Node.js agent instances
-    if (discoveryAgentInstance) await discoveryAgentInstance.shutdown();
-    if (analysisAgentInstance) await analysisAgentInstance.shutdown();
-    if (riskAgentInstance) await riskAgentInstance.shutdown();
+    for (const agent of discoveryAgents.values()) {
+      await agent.shutdown();
+    }
+    if (analysisAgent) await analysisAgent.shutdown();
+    if (riskAgent) await riskAgent.shutdown();
     if (executionAgentInstance) await executionAgentInstance.shutdown();
-
-    // Stop and delete default swarm (Julia-side)
-    if (defaultSwarmJuliaId) {
-      await coordinator.stopSwarm(defaultSwarmJuliaId);
-      await coordinator.deleteSwarm(defaultSwarmJuliaId);
-    }
-
-    // Delete Julia-side agents
-    if (discoveryAgentJuliaId) {
-      await coordinator.deleteAgent(discoveryAgentJuliaId);
-    }
-    if (analysisAgentJuliaId) {
-      await coordinator.deleteAgent(analysisAgentJuliaId);
-    }
-    if (riskAgentJuliaId) {
-      await coordinator.deleteAgent(riskAgentJuliaId);
-    }
 
     await coordinator.shutdown();
     process.exit(0);
   });
 });
-

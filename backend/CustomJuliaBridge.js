@@ -46,7 +46,7 @@ class CustomJuliaBridge {
     async connect() {
         return new Promise((resolve, reject) => {
             this.client = net.createConnection({ host: this.host, port: this.port }, () => {
-                console.log('[CustomJuliaBridge] Connected to Julia server.');
+                
                 resolve();
             });
             this.client.on('data', (data) => {
@@ -61,7 +61,7 @@ class CustomJuliaBridge {
                 });
             });
             this.client.on('end', () => {
-                console.log('[CustomJuliaBridge] Disconnected from Julia server.');
+                
             });
             this.client.on('error', (err) => {
                 console.error('[CustomJuliaBridge] Connection error:', err);

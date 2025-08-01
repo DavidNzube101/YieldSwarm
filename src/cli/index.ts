@@ -94,6 +94,7 @@ agents
   .description('Create a new agent')
   .argument('<name>', 'Name of the agent')
   .argument('<type>', 'Type of the agent')
+  .option('--chain <chain>', 'Target chain for the agent')
   .option('-c, --config <json>', 'JSON configuration for the agent', '{}')
   .action(async (name, type, options) => {
     let config = {};
@@ -103,7 +104,7 @@ agents
       console.error('Error: Invalid JSON for --config option. Please ensure it is a valid JSON string.');
       process.exit(1);
     }
-    const agent = await coordinator.createAgent(name, type, config);
+    const agent = await coordinator.createAgent({ name, type, chain: options.chain, config });
     console.log(`Created agent: ${agent.name} (ID: ${agent.id})`);
   });
 
@@ -251,6 +252,26 @@ swarms
   .action(async (swarmId, agentId) => {
     await coordinator.removeAgentFromSwarm(swarmId, agentId);
     console.log(`Removed agent ${agentId} from swarm ${swarmId}`);
+  });
+
+program
+  .command('alerts')
+  .description('Show recent risk alerts')
+  .action(async () => {
+    const alerts = coordinator.getRecentAlerts();
+    if (alerts.length === 0) {
+      console.log('No recent alerts.');
+      return;
+    }
+    console.log('Recent Alerts:');
+    alerts.forEach(alert => {
+      console.log(`  ID: ${alert.id}`);
+      console.log(`  Type: ${alert.type}`);
+      console.log(`  Source: ${alert.source}`);
+      console.log(`  Timestamp: ${new Date(alert.timestamp).toLocaleString()}`);
+      console.log(`  Data: ${JSON.stringify(alert.data)}`);
+      console.log('---');
+    });
   });
 
 // Quick start command

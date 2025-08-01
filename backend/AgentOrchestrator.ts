@@ -11,16 +11,16 @@ export class AgentOrchestrator {
     try {
       return await this.bridge.runCommand('agents.list_agents');
     } catch (error) {
-      console.error('Error listing agents:', error);
       throw error;
     }
   }
 
-  async create({ name, type, config }: { name: string; type: string; config: any }) {
+  async create({ name, type, chain, config }: { name: string; type: string; chain?: string; config: any }) {
     try {
-      return await this.bridge.runCommand('agents.create_agent', { name, type, config });
+      // Manually construct the array in the correct order for Julia
+      const params = [name, type, chain || null, config];
+      return await this.bridge.runCommand('agents.create_agent', params);
     } catch (error) {
-      console.error('Error creating agent:', error);
       throw error;
     }
   }
@@ -29,7 +29,6 @@ export class AgentOrchestrator {
     try {
       return await this.bridge.runCommand('agents.get_agent', { id });
     } catch (error) {
-      console.error(`Error getting agent ${id}:`, error);
       throw error;
     }
   }
@@ -38,7 +37,6 @@ export class AgentOrchestrator {
     try {
       return await this.bridge.runCommand('agents.start_agent', { id });
     } catch (error) {
-      console.error(`Error starting agent ${id}:`, error);
       throw error;
     }
   }
@@ -47,7 +45,6 @@ export class AgentOrchestrator {
     try {
       return await this.bridge.runCommand('agents.stop_agent', { id });
     } catch (error) {
-      console.error(`Error stopping agent ${id}:`, error);
       throw error;
     }
   }
@@ -56,7 +53,6 @@ export class AgentOrchestrator {
     try {
       return await this.bridge.runCommand('agents.delete_agent', { id });
     } catch (error) {
-      console.error(`Error deleting agent ${id}:`, error);
       throw error;
     }
   }

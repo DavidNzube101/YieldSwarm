@@ -3,20 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YieldSwarm Dashboard</title>
+    <title>YieldSwarm Dashboard - Advanced Control Center</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Header -->
         <header class="dashboard-header">
-            <h1>YieldSwarm Dashboard</h1>
-            <div class="connection-status">
-                <span id="connection-indicator" class="status-dot disconnected"></span>
-                <span id="connection-text">Connecting...</span>
+            <div class="header-left">
+                <h1>YieldSwarm Dashboard</h1>
+                <div class="version-badge">v2.0</div>
+            </div>
+            <div class="header-right">
+                <div class="theme-toggle">
+                    <button id="theme-toggle" class="theme-btn">🌙</button>
+                </div>
+                <div class="connection-status">
+                    <span id="connection-indicator" class="status-dot disconnected"></span>
+                    <span id="connection-text">Connecting...</span>
+                </div>
             </div>
         </header>
+
+        <!-- Global Configuration Bar -->
+        <div class="config-bar">
+            <div class="config-section">
+                <label class="config-label">Data Mode:</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="data-mode-toggle" class="toggle-input">
+                    <label for="data-mode-toggle" class="toggle-label">
+                        <span class="toggle-text" data-on="REAL" data-off="MOCK"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="config-section">
+                <label class="config-label">Active Chains:</label>
+                <div class="chain-selector">
+                    <div class="chain-option">
+                        <input type="checkbox" id="chain-ethereum" value="ethereum" checked>
+                        <label for="chain-ethereum">Ethereum</label>
+                    </div>
+                    <div class="chain-option">
+                        <input type="checkbox" id="chain-solana" value="solana" checked>
+                        <label for="chain-solana">Solana</label>
+                    </div>
+                    <div class="chain-option">
+                        <input type="checkbox" id="chain-polygon" value="polygon">
+                        <label for="chain-polygon">Polygon</label>
+                    </div>
+                    <div class="chain-option">
+                        <input type="checkbox" id="chain-arbitrum" value="arbitrum">
+                        <label for="chain-arbitrum">Arbitrum</label>
+                    </div>
+                    <div class="chain-option">
+                        <input type="checkbox" id="chain-bsc" value="bsc">
+                        <label for="chain-bsc">BSC</label>
+                    </div>
+                </div>
+            </div>
+            <div class="config-section">
+                <button id="apply-config" class="apply-config-btn">Apply Configuration</button>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <main class="dashboard-main">
@@ -26,7 +75,10 @@
                 <div class="panel" id="agents-panel">
                     <div class="panel-header">
                         <h2>Agent Management</h2>
-                        <button class="refresh-btn" id="refresh-agents">↻</button>
+                        <div class="panel-actions">
+                            <button class="create-btn" id="create-agent-btn">+ Create Agent</button>
+                            <button class="refresh-btn" id="refresh-agents">↻</button>
+                        </div>
                     </div>
                     <div class="panel-content">
                         <div class="table-container">
@@ -36,13 +88,14 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>Type</th>
+                                        <th>Chain</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="agents-tbody">
                                     <tr class="loading-row">
-                                        <td colspan="5">Loading agents...</td>
+                                        <td colspan="6">Loading agents...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -54,7 +107,10 @@
                 <div class="panel" id="swarms-panel">
                     <div class="panel-header">
                         <h2>Swarm Management</h2>
-                        <button class="refresh-btn" id="refresh-swarms">↻</button>
+                        <div class="panel-actions">
+                            <button class="create-btn" id="create-swarm-btn">+ Create Swarm</button>
+                            <button class="refresh-btn" id="refresh-swarms">↻</button>
+                        </div>
                     </div>
                     <div class="panel-content">
                         <div class="table-container">
@@ -63,6 +119,7 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Name</th>
+                                        <th>Algorithm</th>
                                         <th>Status</th>
                                         <th>Agents</th>
                                         <th>Actions</th>
@@ -70,7 +127,7 @@
                                 </thead>
                                 <tbody id="swarms-tbody">
                                     <tr class="loading-row">
-                                        <td colspan="5">Loading swarms...</td>
+                                        <td colspan="6">Loading swarms...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -85,9 +142,28 @@
                 <div class="panel" id="opportunities-panel">
                     <div class="panel-header">
                         <h2>Live Opportunity Feed</h2>
-                        <span class="opportunity-count">0 opportunities</span>
+                        <div class="panel-stats">
+                            <span class="opportunity-count">0 opportunities</span>
+                            <span class="update-time">Last update: Never</span>
+                        </div>
                     </div>
                     <div class="panel-content">
+                        <div class="opportunity-filters">
+                            <select id="chain-filter" class="filter-select">
+                                <option value="">All Chains</option>
+                                <option value="ethereum">Ethereum</option>
+                                <option value="solana">Solana</option>
+                                <option value="polygon">Polygon</option>
+                                <option value="arbitrum">Arbitrum</option>
+                                <option value="bsc">BSC</option>
+                            </select>
+                            <select id="apy-filter" class="filter-select">
+                                <option value="">All APY</option>
+                                <option value="high">High (>20%)</option>
+                                <option value="medium">Medium (10-20%)</option>
+                                <option value="low">Low (<10%)</option>
+                            </select>
+                        </div>
                         <div class="table-container">
                             <table id="opportunities-table">
                                 <thead>
@@ -97,11 +173,12 @@
                                         <th>Pool</th>
                                         <th>APY (%)</th>
                                         <th>TVL ($)</th>
+                                        <th>Risk</th>
                                     </tr>
                                 </thead>
                                 <tbody id="opportunities-tbody">
                                     <tr class="no-data-row">
-                                        <td colspan="5">Waiting for opportunities...</td>
+                                        <td colspan="6">Waiting for opportunities...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -113,28 +190,42 @@
                 <div class="panel" id="portfolio-panel">
                     <div class="panel-header">
                         <h2>Portfolio Allocation</h2>
+                        <div class="portfolio-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Expected Yield:</span>
+                                <span id="expected-yield" class="metric-value">0.00%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Total Risk:</span>
+                                <span id="total-risk" class="metric-value risk-medium">Medium</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="panel-content">
                         <div class="portfolio-container">
-                            <div class="chart-container">
-                                <canvas id="portfolio-chart" width="200" height="200"></canvas>
-                                <div class="chart-center-text">
-                                    <span id="total-allocation">0%</span>
-                                    <small>Allocated</small>
+                            <div class="chart-section">
+                                <div class="chart-container">
+                                    <canvas id="portfolio-chart" width="220" height="220"></canvas>
+                                    <div class="chart-center-text">
+                                        <span id="total-allocation">0%</span>
+                                        <small>Allocated</small>
+                                    </div>
                                 </div>
+                                <div class="chart-legend" id="chart-legend"></div>
                             </div>
                             <div class="allocation-table">
                                 <table id="allocation-table">
                                     <thead>
                                         <tr>
-                                            <th>Opportunity ID</th>
+                                            <th>Opportunity</th>
                                             <th>Chain</th>
-                                            <th>Allocation (%)</th>
+                                            <th>Allocation</th>
+                                            <th>Yield</th>
                                         </tr>
                                     </thead>
                                     <tbody id="allocation-tbody">
                                         <tr class="no-data-row">
-                                            <td colspan="3">No allocations</td>
+                                            <td colspan="4">No allocations</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -143,11 +234,38 @@
                     </div>
                 </div>
 
-                <!-- System Logs & Risk Alerts -->
+                <!-- Risk Alerts Panel -->
+                <div class="panel" id="risk-alerts-panel">
+                    <div class="panel-header">
+                        <h2>Risk Alerts</h2>
+                        <div class="alert-summary">
+                            <span class="alert-count critical" id="critical-count">0</span>
+                            <span class="alert-count high" id="high-count">0</span>
+                            <span class="alert-count medium" id="medium-count">0</span>
+                            <span class="alert-count low" id="low-count">0</span>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="alerts-container" id="alerts-container">
+                            <div class="no-alerts">No active risk alerts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Logs -->
                 <div class="panel" id="logs-panel">
                     <div class="panel-header">
-                        <h2>System Logs & Risk Alerts</h2>
-                        <button class="clear-btn" id="clear-logs">Clear</button>
+                        <h2>System Logs</h2>
+                        <div class="log-controls">
+                            <select id="log-filter" class="filter-select">
+                                <option value="">All Logs</option>
+                                <option value="system">System</option>
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="error">Error</option>
+                            </select>
+                            <button class="clear-btn" id="clear-logs">Clear</button>
+                        </div>
                     </div>
                     <div class="panel-content">
                         <div class="logs-container" id="logs-container">
@@ -160,6 +278,85 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Create Agent Modal -->
+    <div id="create-agent-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Agent</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="create-agent-form" class="modal-form">
+                <div class="form-group">
+                    <label for="agent-name">Agent Name:</label>
+                    <input type="text" id="agent-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="agent-type">Agent Type:</label>
+                    <select id="agent-type">
+                        <option value="">Select Type</option>
+                        <option value="discovery">Discovery Agent</option>
+                        <option value="analysis">Analysis Agent</option>
+                        <option value="risk">Risk Agent</option>
+                        <option value="execution">Execution Agent</option>
+                    </select>
+                </div>
+                <div class="form-group" id="agent-chain-container">
+                    <label for="agent-chain">Target Chain:</label>
+                    <select id="agent-chain">
+                        <option value="">Select Chain</option>
+                        <option value="ethereum">Ethereum</option>
+                        <option value="solana">Solana</option>
+                        <option value="polygon">Polygon</option>
+                        <option value="arbitrum">Arbitrum</option>
+                        <option value="bsc">BSC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="agent-config">Configuration (JSON):</label>
+                    <textarea id="agent-config" rows="4" placeholder='{"param1": "value1", "param2": "value2"}'></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Create Agent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Swarm Modal -->
+    <div id="create-swarm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Swarm</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="create-swarm-form" class="modal-form">
+                <div class="form-group">
+                    <label for="swarm-name">Swarm Name:</label>
+                    <input type="text" id="swarm-name" required>
+                </div>
+                <div class="form-group">
+              <label for="swarm-algorithm">Optimization Algorithm</label>
+              <select id="swarm-algorithm" name="swarm-algorithm"></select>
+            </div>
+                <div class="form-group">
+                    <label for="swarm-agents">Assign Agents:</label>
+                    <div id="available-agents" class="agent-checkboxes">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="swarm-config">Algorithm Parameters (JSON):</label>
+                    <textarea id="swarm-config" rows="4" placeholder='{"population_size": 50, "mutation_rate": 0.1}'></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Create Swarm</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="app.js"></script>

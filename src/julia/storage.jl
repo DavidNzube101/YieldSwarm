@@ -36,6 +36,7 @@ function load_data()
                     uuid,
                     agent_data["name"],
                     agent_data["type"],
+                    get(agent_data, "chain", nothing),
                     agent_data["config"],
                     agent_data["status"],
                     nothing # Task is not persisted
@@ -55,6 +56,7 @@ function load_data()
                     UUID(a["id"]),
                     a["name"],
                     a["type"],
+                    get(a, "chain", nothing),
                     a["config"],
                     a["status"],
                     nothing

@@ -11,7 +11,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.list_swarms');
     } catch (error) {
-      console.error('Error listing swarms:', error);
       throw error;
     }
   }
@@ -20,7 +19,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.create_swarm', { name, algorithm, config });
     } catch (error) {
-      console.error('Error creating swarm:', error);
       throw error;
     }
   }
@@ -29,7 +27,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.get_swarm', { id });
     } catch (error) {
-      console.error(`Error getting swarm ${id}:`, error);
       throw error;
     }
   }
@@ -38,7 +35,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.start_swarm', { id });
     } catch (error) {
-      console.error(`Error starting swarm ${id}:`, error);
       throw error;
     }
   }
@@ -47,7 +43,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.stop_swarm', { id });
     } catch (error) {
-      console.error(`Error stopping swarm ${id}:`, error);
       throw error;
     }
   }
@@ -56,7 +51,6 @@ export class SwarmOrchestrator {
     try {
       return await this.bridge.runCommand('swarms.delete_swarm', { id });
     } catch (error) {
-      console.error(`Error deleting swarm ${id}:`, error);
       throw error;
     }
   }

@@ -7,12 +7,12 @@ function injectEnvSubgraphs(dexConfig: any) {
   // Helper to support both full URLs and subgraph paths
   function resolveSubgraph(envVar: string, fallback: string) {
     const val = process.env[envVar] || fallback;
-    console.log(`[DEBUG] resolveSubgraph - envVar: ${envVar}, value: ${val}`);
+    
     return val.startsWith('http') ? val : endpoint + val;
   }
   // Ethereum
   if (dexConfig.ethereum?.uniswap_v2) {
-    console.log(`[DEBUG] UNISWAP_V2_SUBGRAPH from process.env: ${process.env['UNISWAP_V2_SUBGRAPH']}`);
+    
     dexConfig.ethereum.uniswap_v2.subgraph = resolveSubgraph('UNISWAP_V2_SUBGRAPH', 'uniswap/uniswap-v2');
   }
   if (dexConfig.ethereum?.uniswap_v3) {
@@ -96,13 +96,14 @@ export class RealDEXIntegrations {
   private chain: string;
   private dexes: any;
   private etherscanApiKey: string;
-  
+  public globalConfig: any; // Add globalConfig property
 
-  constructor(chain: string) {
+  constructor(chain: string, globalConfig: any) {
     this.chain = chain;
     this.logger = new Logger(`RealDEXIntegrations-${chain}`);
     this.dexes = injectEnvSubgraphs(JSON.parse(JSON.stringify(dexes)))[chain] || {};
     this.etherscanApiKey = process.env['ETHERSCAN_API_KEY'] || '';
+    this.globalConfig = globalConfig; // Assign globalConfig
   }
 
   async initialize(): Promise<void> {
@@ -124,12 +125,12 @@ export class RealDEXIntegrations {
         ([, config]: [string, any]) => config.enabled && config.subgraph
       );
       if (!enabledDexEntry) {
-        this.logger.warn(`[DEBUG] No enabled DEX with a subgraph found for ${this.chain}, skipping connectivity test.`);
+        this.logger.warn(`No enabled DEX with a subgraph found for ${this.chain}, skipping connectivity test.`);
         return;
       }
       const [dexName, dexConfig] = enabledDexEntry;
       const testQuery = `{ pairs(first: 1) { id } }`;
-      this.logger.info(`[DEBUG] Testing The Graph connectivity for ${dexName} at: ${(dexConfig as any).subgraph}`);
+      this.logger.info(`Testing The Graph connectivity for ${dexName} at: ${(dexConfig as any).subgraph}`);
       const response = await axios.post(
         (dexConfig as any).subgraph,
         { query: testQuery },
@@ -154,15 +155,9 @@ export class RealDEXIntegrations {
   }
 
   async getPools(dexName: string): Promise<Pool[]> {
-    // Use env var only. Default to real data (useMock = false)
-    let useMock: boolean;
-    if (typeof process.env['USE_MOCK_DEX_DATA'] !== 'undefined') {
-      useMock = process.env['USE_MOCK_DEX_DATA'] === 'true';
-      this.logger.info(`[Config] Using USE_MOCK_DEX_DATA env: ${useMock}`);
-    } else {
-      useMock = false;
-      this.logger.info('[Config] No USE_MOCK_DEX_DATA env set. Defaulting to real DEX data.');
-    }
+    const useMock = this.globalConfig.dataMode === 'mock';
+    this.logger.info(`[Config] Using data mode from global config: ${this.globalConfig.dataMode}`);
+
     if (useMock) {
       return this.getMockPools(dexName);
     }
@@ -173,7 +168,7 @@ export class RealDEXIntegrations {
         this.logger.warn(`Raydium not enabled or restApi missing`);
         return [];
       }
-      this.logger.info(`[DEBUG] Fetching Raydium pools from: ${dex.restApi}pools/info/list`);
+      this.logger.info(`Fetching Raydium pools from: ${dex.restApi}pools/info/list`);
       try {
         // Use Raydium v3 API with required query params
         const url = dex.restApi.endsWith('/') ? `${dex.restApi}pools/info/list` : `${dex.restApi}/pools/info/list`;
@@ -237,7 +232,7 @@ export class RealDEXIntegrations {
         this.logger.warn(`Orca not enabled or restApi missing`);
         return [];
       }
-      this.logger.info(`[DEBUG] Fetching Orca pools from: ${dex.restApi}whirlpool/list`);
+      this.logger.info(`Fetching Orca pools from: ${dex.restApi}whirlpool/list`);
       try {
         // Use Orca v1 API for whirlpool list
         const url = dex.restApi.endsWith('/') ? `${dex.restApi}whirlpool/list` : `${dex.restApi}/whirlpool/list`;
@@ -330,17 +325,25 @@ export class RealDEXIntegrations {
   }
 
   private getMockPools(dexName: string): Pool[] {
-    return [
-      {
-        id: `mock-pool-1-${dexName}`,
-        token0: { id: '0xA0b86a33E6441b8c4C8B8C4C8C4C8C4C8C4C8C4C', symbol: 'USDC', decimals: 6 },
-        token1: { id: '0xB0b86a33E6441b8c4C8B8C4C8C4C8C4C8C4C8C4C', symbol: 'WETH', decimals: 18 },
-        reserve0: '1000000',
-        reserve1: '500',
-        totalSupply: '1000000',
-        volumeUSD: '50000'
-      }
-    ];
+    const mockPools: Pool[] = [];
+    const numMockPools = 10; // Generate 10 mock pools
+
+    for (let i = 0; i < numMockPools; i++) {
+      const tvl = Math.random() * 10000000; // Random TVL up to 10M
+      const volume24h = Math.random() * 1000000; // Random volume up to 1M
+
+      mockPools.push({
+        id: `mock-pool-${i}-${dexName}`,
+        token0: { id: `tokenA-${i}`, symbol: `TKA${i}`, decimals: 18 },
+        token1: { id: `tokenB-${i}`, symbol: `TKB${i}`, decimals: 18 },
+        reserve0: (tvl / 2).toString(),
+        reserve1: (tvl / 2).toString(),
+        totalSupply: (tvl / 100).toString(),
+        volumeUSD: volume24h.toString(),
+        feeTier: 0.003,
+      });
+    }
+    return mockPools;
   }
 
   async getYieldOpportunities(): Promise<YieldOpportunity[]> {

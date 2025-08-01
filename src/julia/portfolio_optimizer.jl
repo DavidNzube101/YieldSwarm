@@ -11,28 +11,28 @@ export optimize_portfolio, calculate_impermanent_loss, calculate_rebalancing_thr
 """
 Optimize portfolio allocation using Modern Portfolio Theory
 """
-function optimize_portfolio(opportunities::Vector{Dict}, constraints::Dict)
+function optimize_portfolio(opportunities::Vector{Any}, constraints::Dict)
     # Extract data
     n = length(opportunities)
-    yields = [opp["expected_yield"] for opp in opportunities]
-    risks = [opp["risk_score"] for opp in opportunities]
+    yields = [Float64(opp["expected_yield"]) for opp in opportunities]
+    risks = [Float64(opp["risk_score"]) for opp in opportunities]
     
     # Create optimization model
     model = Model(HiGHS.Optimizer)
     
     # Decision variables: allocation to each opportunity
-    @variable(model, 0 <= x[1:n] <= constraints["max_allocation_per_opportunity"])
+    @variable(model, 0 <= x[1:n] <= Float64(constraints["max_allocation_per_opportunity"]))
     
     # Constraint: total allocation = 1
-    @constraint(model, sum(x) == constraints["total_allocation"])
+    @constraint(model, sum(x) == Float64(constraints["total_allocation"]))
     
     # Constraint: minimum allocation per opportunity
     for i in 1:n
-        @constraint(model, x[i] >= constraints["min_allocation_per_opportunity"])
+        @constraint(model, x[i] >= Float64(constraints["min_allocation_per_opportunity"]))
     end
     
     # Constraint: risk tolerance
-    @constraint(model, sum(risks[i] * x[i] for i in 1:n) <= constraints["risk_tolerance"])
+    @constraint(model, sum(risks[i] * x[i] for i in 1:n) <= Float64(constraints["risk_tolerance"]))
     
     # Objective: maximize risk-adjusted yield
     # Using Sharpe ratio approximation: (return - risk_free_rate) / risk
@@ -85,7 +85,7 @@ end
 """
 Create fallback solution when optimization fails
 """
-function create_fallback_solution(opportunities::Vector{Dict}, constraints::Dict)
+function create_fallback_solution(opportunities::Vector{Any}, constraints::Dict)
     n = length(opportunities)
     
     # Sort by risk-adjusted yield
@@ -196,6 +196,17 @@ function calculate_position_size(expected_yield::Float64, risk_score::Float64,
     position_size = max(min(max_position_size, 0.2), min_position_size)  # Cap at 20%
     
     return position_size * total_capital
+end
+
+"""
+Get available portfolio optimization algorithms
+"""
+function get_available_algorithms()
+    return [
+        Dict("id" => "PortfolioOptimization", "name" => "Modern Portfolio Theory", "description" => "Optimizes for risk-adjusted yield using mean-variance optimization."),
+        Dict("id" => "RiskParity", "name" => "Risk Parity", "description" => "Allocates capital to balance risk contributions from each asset. (Coming Soon)"),
+        Dict("id" => "MeanVariance", "name" => "Mean-Variance Optimization", "description" => "Classic MPT approach to maximize return for a given level of risk. (Coming Soon)")
+    ]
 end
 
 end # module PortfolioOptimizer

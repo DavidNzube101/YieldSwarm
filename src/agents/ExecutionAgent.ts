@@ -1,4 +1,4 @@
-import { ApiClient } from '../utils/JuliaOSMock';
+import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { ExecutionRequest, ExecutionType, AgentStatus, SwarmMessage, MessageType, MessagePriority } from '../types';
 import { RealDEXIntegrations } from '../defi/RealDEXIntegrations';
@@ -14,7 +14,7 @@ interface ExecutionResult {
 }
 
 export class ExecutionAgent {
-  private client: ApiClient;
+  private client: IAgentCommunication;
   private chain: string;
   private logger: Logger;
   private dexIntegrations: RealDEXIntegrations;
@@ -23,11 +23,11 @@ export class ExecutionAgent {
   private pendingExecutions: Map<string, ExecutionRequest> = new Map();
   private executionQueue: ExecutionRequest[] = [];
 
-  constructor(chain: string, client: ApiClient) {
+  constructor(chain: string, client: IAgentCommunication, globalConfig: any) {
     this.client = client;
     this.chain = chain;
     this.logger = new Logger(`ExecutionAgent-${chain}`);
-    this.dexIntegrations = new RealDEXIntegrations(chain);
+    this.dexIntegrations = new RealDEXIntegrations(chain, globalConfig);
   }
 
   async start(): Promise<void> {
@@ -321,7 +321,7 @@ export class ExecutionAgent {
       priority: MessagePriority.NORMAL
     };
 
-    await this.client.swarm.broadcast(message);
+    await this.client.emit(MessageType.EXECUTION_REQUEST, message);
   }
 
   async onMessage(message: SwarmMessage): Promise<void> {

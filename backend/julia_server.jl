@@ -28,7 +28,7 @@ using .Events
 const COMMANDS = Dict(
     "agents.list_agents" => (params) -> Agents.list_agents(),
     "agents.create_agent" => (params) -> begin
-        agent = Agents.create_agent(params["name"], params["type"], params["config"])
+        agent = Agents.create_agent(params[1], params[2], params[3], params[4])
         Storage.save_data()
         return agent
     end,
@@ -82,7 +82,21 @@ const COMMANDS = Dict(
         return swarm
     end,
 
-    "portfolio.optimize" => (params) -> PortfolioOptimizer.optimize_portfolio(params["opportunities"], params["constraints"])
+    "portfolio.get_available_algorithms" => (params) -> PortfolioOptimizer.get_available_algorithms(),
+
+    "portfolio.optimize" => (params) -> begin
+        if get(ENV, "JULIA_LOG_LEVEL", "info") == "debug"
+            println("DEBUG: Type of params: ", typeof(params))
+            println("DEBUG: Type of opportunities: ", typeof(params["opportunities"]))
+            println("DEBUG: Type of constraints: ", typeof(params["constraints"]))
+            if !isempty(params["opportunities"])
+                println("DEBUG: Type of first opportunity: ", typeof(params["opportunities"][1]))
+                println("DEBUG: Type of expected_yield in first opportunity: ", typeof(params["opportunities"][1]["expected_yield"]))
+            end
+            println("DEBUG: Type of risk_tolerance in constraints: ", typeof(params["constraints"]["risk_tolerance"]))
+        end
+        PortfolioOptimizer.optimize_portfolio(params["opportunities"], params["constraints"])
+    end
 )
 
 function handle_command(req)

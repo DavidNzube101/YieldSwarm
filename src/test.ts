@@ -1,5 +1,6 @@
 import { Logger } from './utils/Logger';
 import { RealDEXIntegrations } from './defi/RealDEXIntegrations';
+import { globalConfig } from '../src/config/globalConfig';
 
 const logger = new Logger('Test');
 
@@ -7,7 +8,7 @@ async function testDEXIntegrations() {
   try {
     logger.info('🧪 Testing DEX Integrations...');
 
-    const dexIntegrations = new RealDEXIntegrations('ethereum');
+    const dexIntegrations = new RealDEXIntegrations('ethereum', globalConfig);
     
     // Test getting opportunities
     const opportunities = await dexIntegrations.getYieldOpportunities();

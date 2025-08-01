@@ -7,17 +7,19 @@
     "yieldswarm": "dist/backend/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/yieldswarm-ui dist/src/yieldswarm-ui && cp -r node_modules/socket.io/client-dist dist/socket.io",
+    "test": "jest",
     "start": "node dist/src/index.js",
     "dev": "ts-node src/index.ts",
-    "test": "ts-node src/test.ts",
+    
     "test:dex": "ts-node src/test-dex.ts",
     "test:apis": "ts-node src/test-apis.ts",
     "test:wallet": "ts-node src/test-wallet.ts",
     "cli": "node dist/src/cli/index.js",
     "cli:build": "tsc && node dist/backend/cli.js",
     "cli:dev": "ts-node src/cli/index.ts",
-    "start:api": "ts-node backend/api.ts"
+    "start:api": "node dist/backend/api.js",
+    "start:api:debug": "LOG_LEVEL=debug node dist/backend/api.js"
   },
   "keywords": [
     "defi",
@@ -51,9 +53,12 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.12.12",
     "@types/uuid": "^10.0.0",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },

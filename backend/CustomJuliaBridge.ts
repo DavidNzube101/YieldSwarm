@@ -1,3 +1,4 @@
+import { Logger } from '../src/utils/Logger';
 import * as net from 'net';
 import { v4 as uuidv4 } from 'uuid';
 import eventBus from '../src/events/EventBus';
@@ -7,18 +8,24 @@ export class CustomJuliaBridge {
   private port: number;
   private client: net.Socket | null = null;
   private responses: Map<string, (data: any) => void> = new Map();
+  private logger: Logger;
 
   constructor({ host = '127.0.0.1', port = 8052 } = {}) {
     this.host = host;
     this.port = port;
+    this.logger = new Logger('CustomJuliaBridge');
   }
 
+  /**
+   * Establishes a connection to the Julia TCP server.
+   * @param retries The number of times to retry the connection if it fails.
+   * @param delay The delay in milliseconds between retries.
+   */
   public async connect(retries: number = 5, delay: number = 1000): Promise<void> {
     for (let i = 0; i < retries; i++) {
       try {
         return await new Promise((resolve, reject) => {
           this.client = net.createConnection({ host: this.host, port: this.port }, () => {
-            console.log('[CustomJuliaBridge] Connected to Julia server.');
             resolve();
           });
 
@@ -42,7 +49,7 @@ export class CustomJuliaBridge {
           });
 
           this.client.on('end', () => {
-            console.log('[CustomJuliaBridge] Disconnected from Julia server.');
+            
           });
 
           this.client.on('error', (err: NodeJS.ErrnoException) => {
@@ -84,6 +91,8 @@ export class CustomJuliaBridge {
         params: params,
         id: id,
       };
+
+      this.logger.info(`Sending request:`, request);
 
       const timer = setTimeout(() => {
         this.responses.delete(id);

@@ -1,17 +1,19 @@
-import { ApiClient } from '../utils/JuliaOSMock';
+import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { YieldOpportunity, PortfolioAllocation, AgentStatus, SwarmMessage, MessageType, MessagePriority } from '../types';
 import { YieldCalculator } from '../defi/YieldCalculator';
 
 export class AnalysisAgent {
-  private client: ApiClient;
+  private client: IAgentCommunication;
   private logger: Logger;
   private yieldCalculator: YieldCalculator;
   private status: AgentStatus = AgentStatus.INACTIVE;
   private opportunities: Map<string, YieldOpportunity> = new Map();
   private currentPortfolio: PortfolioAllocation[] = [];
+  private optimizationTimeout: NodeJS.Timeout | null = null;
+  private isOptimizationPending: boolean = false;
 
-  constructor(client: ApiClient) {
+  constructor(client: IAgentCommunication) {
     this.client = client;
     this.logger = new Logger('AnalysisAgent');
     this.yieldCalculator = new YieldCalculator();
@@ -22,9 +24,7 @@ export class AnalysisAgent {
     this.status = AgentStatus.STARTING;
 
     try {
-      // Initialize yield calculator
       await this.yieldCalculator.initialize();
-      
       this.status = AgentStatus.ACTIVE;
       this.logger.success('Analysis Agent started successfully');
     } catch (error) {
@@ -34,42 +34,47 @@ export class AnalysisAgent {
     }
   }
 
-  async processYieldOpportunity(opportunity: YieldOpportunity): Promise<void> {
-    this.logger.debug(`Processing yield opportunity: ${opportunity.id} with ${opportunity.apy.toFixed(2)}% APY`);
-
-    try {
-      // Store the opportunity
-      this.opportunities.set(opportunity.id, opportunity);
-
-      // Perform portfolio optimization
-      await this.optimizePortfolio();
-    } catch (error) {
-      this.logger.error(`Error processing opportunity ${opportunity.id}:`, error);
+  private scheduleOptimization(): void {
+    // If an optimization is already scheduled, do nothing.
+    if (this.isOptimizationPending) {
+      this.logger.debug('Optimization already pending, skipping new schedule.');
+      return;
     }
+    this.isOptimizationPending = true;
+    this.logger.info('Scheduling portfolio optimization in 5 seconds...');
+
+    // Clear any existing timeout to avoid multiple concurrent optimizations
+    if (this.optimizationTimeout) {
+      clearTimeout(this.optimizationTimeout);
+    }
+
+    this.optimizationTimeout = setTimeout(async () => {
+      await this.optimizePortfolio();
+      this.isOptimizationPending = false;
+      this.optimizationTimeout = null;
+    }, 5000); // 5-second debounce/cooldown period
+  }
+
+  async processYieldOpportunity(opportunity: YieldOpportunity): Promise<void> {
+    this.logger.debug(`Processing yield opportunity: ${opportunity.id}`);
+    this.opportunities.set(opportunity.id, opportunity);
+    this.scheduleOptimization();
   }
 
   private async optimizePortfolio(): Promise<void> {
-    this.logger.debug('Performing portfolio optimization...');
+    this.logger.info('Performing portfolio optimization...');
+    const opportunities = Array.from(this.opportunities.values());
+
+    if (opportunities.length === 0) {
+      this.logger.debug('No opportunities available for optimization');
+      return;
+    }
 
     try {
-      // Get all current opportunities
-      const opportunities = Array.from(this.opportunities.values());
-
-      if (opportunities.length === 0) {
-        this.logger.debug('No opportunities available for optimization');
-        return;
-      }
-
-      // Calculate optimal allocations using Julia backend
       const optimalAllocations = await this.calculateOptimalAllocations(opportunities);
-
-      // Update current portfolio
       this.currentPortfolio = optimalAllocations;
-
-      // Broadcast portfolio update
       await this.broadcastPortfolioUpdate(optimalAllocations);
-
-      this.logger.info(`Portfolio optimized with ${optimalAllocations.length} allocations`);
+      this.logger.success(`Portfolio optimized and broadcasted with ${optimalAllocations.length} allocations`);
     } catch (error) {
       this.logger.error('Error optimizing portfolio:', error);
     }
@@ -79,55 +84,43 @@ export class AnalysisAgent {
     this.logger.debug(`Calculating optimal allocations for ${opportunities.length} opportunities`);
 
     try {
-      // Prepare data for Julia optimization
-      const optimizationData = {
+      const optimizationData = this._toSnakeCase({
         opportunities: opportunities.map(opp => ({
           id: opp.id,
-          expectedYield: opp.apy / 100, // Convert to decimal
+          expectedYield: opp.apy / 100,
           riskScore: opp.riskScore,
           chain: opp.chain,
           tvl: opp.tvl,
           volume24h: opp.volume24h
         })),
         constraints: {
-          riskTolerance: 0.3, // 30% risk tolerance
-          maxAllocationPerOpportunity: 0.2, // Max 20% per opportunity
-          minAllocationPerOpportunity: 0.05, // Min 5% per opportunity
-          totalAllocation: 1.0 // 100% allocation
+          riskTolerance: 0.7,
+          maxAllocationPerOpportunity: 0.2,
+          minAllocationPerOpportunity: 0.05,
+          totalAllocation: 1.0
         }
-      };
+      });
 
-      // Call Julia backend for optimization
+      this.logger.debug(`[DEBUG] Sending optimization data to Julia: ${JSON.stringify(optimizationData)}`);
       const result = await this.yieldCalculator.optimizePortfolio(optimizationData);
 
-      // Convert result to portfolio allocations
-      const allocations: PortfolioAllocation[] = result.allocations.map((allocation: any) => ({
-        opportunityId: allocation.opportunityId,
+      return result.allocations.map((allocation: any) => ({
+        opportunityId: allocation.opportunity_id,
         allocation: allocation.allocation,
-        expectedYield: allocation.expectedYield,
-        riskScore: allocation.riskScore,
+        expectedYield: allocation.expected_yield,
+        riskScore: allocation.risk_score,
         chain: allocation.chain
       }));
-
-      return allocations;
     } catch (error) {
       this.logger.error('Error calculating optimal allocations:', error);
-      
-      // Fallback to simple allocation strategy
       return this.calculateFallbackAllocations(opportunities);
     }
   }
 
   private calculateFallbackAllocations(opportunities: YieldOpportunity[]): PortfolioAllocation[] {
     this.logger.warn('Using fallback allocation strategy');
-
-    // Simple strategy: allocate equally among top opportunities
-    const topOpportunities = opportunities
-      .sort((a, b) => b.apy - a.apy)
-      .slice(0, 5); // Top 5 opportunities
-
+    const topOpportunities = opportunities.sort((a, b) => b.apy - a.apy).slice(0, 5);
     const equalAllocation = 1.0 / topOpportunities.length;
-
     return topOpportunities.map(opp => ({
       opportunityId: opp.id,
       allocation: equalAllocation,
@@ -138,67 +131,40 @@ export class AnalysisAgent {
   }
 
   private async broadcastPortfolioUpdate(allocations: PortfolioAllocation[]): Promise<void> {
-    const message: SwarmMessage = {
-      id: `portfolio-update-${Date.now()}`,
-      type: MessageType.PORTFOLIO_UPDATE,
-      source: 'analysis',
-      data: {
-        allocations,
-        timestamp: Date.now(),
-        totalExpectedYield: this.calculateTotalExpectedYield(allocations),
-        totalRisk: this.calculateTotalRisk(allocations)
-      },
+    const messageData = {
+      allocations,
       timestamp: Date.now(),
-      priority: MessagePriority.HIGH
+      totalExpectedYield: this.calculateTotalExpectedYield(allocations),
+      totalRisk: this.calculateTotalRisk(allocations)
     };
-
-    await this.client.swarm.broadcast(message);
-    this.logger.debug(`Broadcasted portfolio update with ${allocations.length} allocations`);
+    
+    this.logger.info('Broadcasting portfolio update to all agents and UI.');
+    await this.client.broadcastMessage(MessageType.PORTFOLIO_UPDATE, messageData, 'analysis', MessagePriority.HIGH);
   }
 
   private calculateTotalExpectedYield(allocations: PortfolioAllocation[]): number {
-    return allocations.reduce((total, allocation) => {
-      return total + (allocation.allocation * allocation.expectedYield);
-    }, 0) * 100; // Convert back to percentage
+    return allocations.reduce((total, item) => total + (item.allocation * item.expectedYield), 0) * 100;
   }
 
   private calculateTotalRisk(allocations: PortfolioAllocation[]): number {
-    // Calculate weighted average risk
-    const totalAllocation = allocations.reduce((sum, allocation) => sum + allocation.allocation, 0);
-    
+    const totalAllocation = allocations.reduce((sum, item) => sum + item.allocation, 0);
     if (totalAllocation === 0) return 0;
-
-    return allocations.reduce((total, allocation) => {
-      return total + (allocation.allocation * allocation.riskScore);
-    }, 0) / totalAllocation;
+    return allocations.reduce((total, item) => total + (item.allocation * item.riskScore), 0) / totalAllocation;
   }
 
   async handleRiskAlert(riskAlert: any): Promise<void> {
-    this.logger.warn(`Handling risk alert: ${riskAlert.message}`);
-
-    try {
-      // Remove affected opportunities from portfolio
-      const affectedOpportunities = riskAlert.affectedOpportunities || [];
-      
-      for (const opportunityId of affectedOpportunities) {
-        this.opportunities.delete(opportunityId);
-      }
-
-      // Re-optimize portfolio without affected opportunities
-      await this.optimizePortfolio();
-
-      this.logger.info(`Portfolio re-optimized after risk alert affecting ${affectedOpportunities.length} opportunities`);
-    } catch (error) {
-      this.logger.error('Error handling risk alert:', error);
+    this.logger.warn(`Received risk alert: "${riskAlert.message}". Re-scheduling optimization.`);
+    const affectedOpportunities = riskAlert.affectedOpportunities || [];
+    for (const opportunityId of affectedOpportunities) {
+      this.opportunities.delete(opportunityId);
     }
+    this.scheduleOptimization();
   }
 
   async onMessage(message: SwarmMessage): Promise<void> {
     this.logger.debug(`Received message: ${message.type}`);
-
     switch (message.type) {
       case MessageType.YIELD_OPPORTUNITY:
-        this.logger.info(`[DEBUG] AnalysisAgent received YIELD_OPPORTUNITY: ${message.data.id}`);
         await this.processYieldOpportunity(message.data);
         break;
       case MessageType.RISK_ALERT:
@@ -212,7 +178,9 @@ export class AnalysisAgent {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down Analysis Agent');
     this.status = AgentStatus.INACTIVE;
-
+    if (this.optimizationTimeout) {
+      clearTimeout(this.optimizationTimeout);
+    }
     await this.yieldCalculator.shutdown();
     this.logger.success('Analysis Agent shutdown completed');
   }
@@ -222,22 +190,21 @@ export class AnalysisAgent {
   }
 
   getCurrentPortfolio(): PortfolioAllocation[] {
-    return [...this.currentPortfolio];
+    return this.currentPortfolio;
   }
 
-  getOpportunityCount(): number {
-    return this.opportunities.size;
-  }
-
-  getPortfolioMetrics(): any {
-    const totalYield = this.calculateTotalExpectedYield(this.currentPortfolio);
-    const totalRisk = this.calculateTotalRisk(this.currentPortfolio);
-
-    return {
-      totalExpectedYield: totalYield,
-      totalRisk,
-      allocationCount: this.currentPortfolio.length,
-      opportunityCount: this.opportunities.size
-    };
+  private _toSnakeCase(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map(k => this._toSnakeCase(k));
+    }
+    if (typeof obj !== 'object' || obj === null) {
+      return obj;
+    }
+    return Object.keys(obj).reduce((acc: Record<string, any>, key) => {
+      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      acc[snakeKey] = this._toSnakeCase(obj[key]);
+      return acc;
+    }, {});
   }
 }
+""

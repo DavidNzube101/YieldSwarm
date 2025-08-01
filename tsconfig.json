@@ -25,10 +25,16 @@
     "noUncheckedIndexedAccess": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@backend/*": ["backend/*"]
+    }
   },
   "include": [
     "src/**/*",
+    "src/config",
     "backend/**/*",
     "src/types/**/*.d.ts"
   ],

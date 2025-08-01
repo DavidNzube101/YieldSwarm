@@ -1,25 +1,19 @@
 import { Logger } from '../utils/Logger';
 import { SwarmMessage, MessageType, MessagePriority } from '../types';
 
-type MessageHandler = (message: SwarmMessage) => Promise<void>;
-
 import { EventEmitter } from 'events';
 
-export class AgentCommunication {
+type MessageHandler = (message: SwarmMessage) => Promise<void>;
+
+export class AgentCommunication extends EventEmitter {
   private handlers: Map<string, MessageHandler> = new Map();
   private messageQueue: SwarmMessage[] = [];
   private isProcessing: boolean = false;
   private logger: Logger;
-  private eventEmitter: EventEmitter;
 
   constructor() {
+    super();
     this.logger = new Logger('AgentCommunication');
-    this.eventEmitter = new EventEmitter();
-  }
-
-  on(event: string, listener: (...args: any[]) => void): this {
-    this.eventEmitter.on(event, listener);
-    return this;
   }
 
   registerHandler(agentId: string, handler: MessageHandler): void {
@@ -46,7 +40,7 @@ export class AgentCommunication {
 
   async broadcast(message: SwarmMessage): Promise<void> {
     this.logger.debug(`Broadcasting message: ${message.type}`);
-    this.eventEmitter.emit(message.type, message.data);
+    this.emit(message.type, message.data);
     await this.sendMessage(message);
   }
 
@@ -60,6 +54,9 @@ export class AgentCommunication {
       priority
     };
 
+    // Emit the event so API server can listen to it
+    this.emit(type, message);
+    
     await this.sendMessage(message);
   }
 
@@ -124,7 +121,7 @@ export class AgentCommunication {
     };
 
     await this.sendMessage(message);
-    this.eventEmitter.emit(type, message);
+    this.emit(type, message);
   }
 
   getRegisteredAgents(): string[] {

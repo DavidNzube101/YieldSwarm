@@ -5,6 +5,7 @@ import { RealDEXIntegrations } from '../defi/RealDEXIntegrations';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+import { globalConfig } from '../config/globalConfig';
 
 export class YieldSwarmCLI {
   private logger: Logger;
@@ -311,7 +312,7 @@ export class YieldSwarmCLI {
 
       for (const chain of chains) {
         try {
-          const dexIntegrations = new RealDEXIntegrations(chain);
+          const dexIntegrations = new RealDEXIntegrations(chain, globalConfig);
           await dexIntegrations.initialize();
 
           const opportunities = await dexIntegrations.getYieldOpportunities();

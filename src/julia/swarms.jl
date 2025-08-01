@@ -43,41 +43,8 @@ const SWARM_TASKS = Dict{UUID, Task}()
 function run_swarm(swarm::Swarm)
     println("Starting swarm $(swarm.name)")
     while swarm.status == "running"
-        println("Swarm $(swarm.name) is optimizing...")
-
-        opportunities_dict = Agents.ANALYZED_OPPORTUNITIES
-        if isempty(opportunities_dict)
-            println("Swarm $(swarm.name): No analyzed opportunities found yet. Waiting...")
-            sleep(5)
-            continue
-        end
-        opportunities = collect(values(opportunities_dict))
-
-        constraints = Dict(
-            "max_allocation_per_opportunity" => get(swarm.config, "max_allocation_per_opportunity", 0.5),
-            "total_allocation" => get(swarm.config, "total_allocation", 1.0),
-            "min_allocation_per_opportunity" => get(swarm.config, "min_allocation_per_opportunity", 0.01),
-            "risk_tolerance" => get(swarm.config, "risk_tolerance", 0.06)
-        )
-
-        try
-            if get(swarm.algorithm, "type", "PortfolioOptimization") == "PortfolioOptimization"
-                optimization_result = PortfolioOptimizer.optimize_portfolio(opportunities, constraints)
-                println("Optimization Result for Swarm $(swarm.name) (PortfolioOptimization): ", optimization_result)
-                Events.publish(:swarm_optimized, Dict("swarm_id" => string(swarm.id), "algorithm" => "PortfolioOptimization", "result" => optimization_result))
-            elseif get(swarm.algorithm, "type", "") == "PSO"
-                # Placeholder for PSO algorithm
-                println("Swarm $(swarm.name): Running PSO algorithm (placeholder).")
-                # In a real scenario, you would call a PSO-specific function here
-                # e.g., pso_result = PSO.optimize(opportunities, constraints, swarm.algorithm["params"])
-                # Events.publish(:swarm_optimized, Dict("swarm_id" => string(swarm.id), "algorithm" => "PSO", "result" => pso_result))
-            else
-                println("Swarm $(swarm.name): Unknown algorithm type: ", get(swarm.algorithm, "type", ""))
-            end
-        catch e
-            println("Error during optimization for Swarm $(swarm.name): ", e)
-        end
-
+        println("Swarm $(swarm.name) is performing background tasks...")
+        # Placeholder for future Julia-side swarm coordination logic
         sleep(15)
     end
     println("Swarm $(swarm.name) stopped.")
