@@ -37,7 +37,11 @@ app.use(cors());
 app.use(express.json());
 
 // Serve the UI
-app.use('/dashboard', express.static(path.join(__dirname, '../src/yieldswarm-ui')));
+const uiPath = path.join(__dirname, '../src/yieldswarm-ui/yieldswarm-ui');
+console.log('🔍 [DEBUG] Serving UI from path:', uiPath);
+console.log('🔍 [DEBUG] Path exists:', require('fs').existsSync(uiPath));
+console.log('🔍 [DEBUG] Path contents:', require('fs').readdirSync(uiPath));
+app.use('/dashboard', express.static(uiPath));
 
 // Serve Socket.IO client locally
 app.use('/socket.io', express.static(path.join(__dirname, '../socket.io/client-dist')));
@@ -74,10 +78,18 @@ app.post('/config', async (req, res) => {
 // WebSocket connection
 // Description: Handles WebSocket connections and disconnections, logging client activity.
 io.on('connection', (socket: any) => {
-  logger.info(`New client connected: ${socket.id}`);
+  const timestamp = new Date().toISOString()
+  logger.info(`[${timestamp}] New client connected: ${socket.id}`);
+
+  // Handle client ready confirmation
+  socket.on('client_ready', (data: any) => {
+    const readyTimestamp = new Date().toISOString()
+    logger.info(`[${readyTimestamp}] Client ready confirmation received:`, data);
+  });
 
   socket.on('disconnect', () => {
-    logger.info(`Client disconnected: ${socket.id}`);
+    const disconnectTimestamp = new Date().toISOString()
+    logger.info(`[${disconnectTimestamp}] Client disconnected: ${socket.id}`);
   });
 });
 
@@ -86,44 +98,77 @@ io.on('connection', (socket: any) => {
 if (coordinator) {
   // Only listen to SwarmCoordinator for Julia-based events (swarm_optimized -> portfolio_update)
   coordinator.on(MessageType.PORTFOLIO_UPDATE, (message: any) => {
-    logger.info(`API: Forwarding PORTFOLIO_UPDATE from SwarmCoordinator to WebSocket clients`);
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding PORTFOLIO_UPDATE from SwarmCoordinator to WebSocket clients`);
     io.emit(MessageType.PORTFOLIO_UPDATE, message.data);
   });
   
   // Agent lifecycle events
-  coordinator.on('agent_created', (data: any) => io.emit('agent_created', data));
-  coordinator.on('agent_started', (data: any) => io.emit('agent_started', data));
-  coordinator.on('agent_stopped', (data: any) => io.emit('agent_stopped', data));
-  coordinator.on('swarm_created', (data: any) => io.emit('swarm_created', data));
-  coordinator.on('swarm_started', (data: any) => io.emit('swarm_started', data));
-  coordinator.on('swarm_stopped', (data: any) => io.emit('swarm_stopped', data));
+  coordinator.on('agent_created', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding agent_created to WebSocket clients`);
+    io.emit('agent_created', data);
+  });
+  coordinator.on('agent_started', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding agent_started to WebSocket clients`);
+    io.emit('agent_started', data);
+  });
+  coordinator.on('agent_stopped', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding agent_stopped to WebSocket clients`);
+    io.emit('agent_stopped', data);
+  });
+  coordinator.on('swarm_created', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding swarm_created to WebSocket clients`);
+    io.emit('swarm_created', data);
+  });
+  coordinator.on('swarm_started', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding swarm_started to WebSocket clients`);
+    io.emit('swarm_started', data);
+  });
+  coordinator.on('swarm_stopped', (data: any) => {
+    const timestamp = new Date().toISOString()
+    logger.info(`[${timestamp}] API: Forwarding swarm_stopped to WebSocket clients`);
+    io.emit('swarm_stopped', data);
+  });
 
   // Listen to events from AgentCommunication (where agents broadcast their messages)
   const agentCommunication = coordinator.getAgentCommunication();
   if (agentCommunication) {
     agentCommunication.on(MessageType.YIELD_OPPORTUNITY, (message: any): void => {
-      logger.info(`API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients`);
+      const timestamp = new Date().toISOString()
+      logger.info(`[${timestamp}] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients`);
       io.emit(MessageType.YIELD_OPPORTUNITY, message.data);
     });
     agentCommunication.on(MessageType.PORTFOLIO_UPDATE, (message: any) => {
-      logger.info(`API: Forwarding PORTFOLIO_UPDATE from AgentCommunication to WebSocket clients`);
+      const timestamp = new Date().toISOString()
+      logger.info(`[${timestamp}] API: Forwarding PORTFOLIO_UPDATE from AgentCommunication to WebSocket clients`);
       io.emit(MessageType.PORTFOLIO_UPDATE, message.data);
     });
     agentCommunication.on(MessageType.RISK_ALERT, (message: any) => {
-      logger.info(`API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients`);
+      const timestamp = new Date().toISOString()
+      logger.info(`[${timestamp}] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients`);
       io.emit(MessageType.RISK_ALERT, message.data);
     });
   }
 
-  // Debug: Log all events being emitted to WebSocket clients
+  // Debug: Log all events being emitted to WebSocket clients with timestamps
 const originalEmit = io.emit;
 io.emit = function(event, ...args) {
-  logger.info(`DEBUG: Emitting WebSocket event '${event}' with data:`, JSON.stringify(args[0]));
+  const timestamp = new Date().toISOString()
+  logger.info(`[${timestamp}] DEBUG: Emitting WebSocket event '${event}' with data:`, JSON.stringify(args[0]));
   
   // Additional debug for portfolio_update specifically
   if (event === 'portfolio_update') {
-    logger.info(`DEBUG: portfolio_update event details - Connected clients: ${io.sockets.sockets.size}`);
-    logger.info(`DEBUG: portfolio_update data structure:`, JSON.stringify(args[0], null, 2));
+    logger.info(`[${timestamp}] DEBUG: portfolio_update event details - Connected clients: ${io.sockets.sockets.size}`);
+    logger.info(`[${timestamp}] DEBUG: portfolio_update data structure:`, JSON.stringify(args[0], null, 2));
+    
+    // Log client details
+    const clientIds = Array.from(io.sockets.sockets.keys());
+    logger.info(`[${timestamp}] DEBUG: Connected client IDs:`, clientIds);
   }
   
   return originalEmit.call(this, event, ...args);

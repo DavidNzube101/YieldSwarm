@@ -1,3 +1,7 @@
+console.log('🚀 [DEBUG] Loading YieldSwarm Dashboard JavaScript - Version: 2025-08-01-23-57');
+console.log('🔥 [CACHE-BUSTED] This is the NEW version with timestamp debugging!');
+console.log('📅 [TIMESTAMP] Current time:', new Date().toISOString());
+
 class YieldSwarmDashboard {
   constructor() {
     this.socket = null
@@ -551,95 +555,388 @@ class YieldSwarmDashboard {
       const io = window.io
       this.socket = io("http://localhost:3000")
 
+      // Add connection state tracking
+      this.connectionReady = false
+      this.pendingEvents = []
+
       this.socket.on("connect", () => {
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Connected successfully`)
         this.updateConnectionStatus(true)
-        this.addLog("WebSocket connected", "system")
+        this.addLog(`[${timestamp}] WebSocket connected`, "system")
+        
+        // Mark connection as ready
+        this.connectionReady = true
+        
+        // Process any pending events
+        this.processPendingEvents()
       })
 
       this.socket.on("disconnect", () => {
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Disconnected`)
         this.updateConnectionStatus(false)
-        this.addLog("WebSocket disconnected", "error")
+        this.addLog(`[${timestamp}] WebSocket disconnected`, "error")
+        this.connectionReady = false
       })
 
+      this.socket.on("error", (error) => {
+        const timestamp = new Date().toISOString()
+        console.error(`[${timestamp}] WebSocket error:`, error)
+        this.addLog(`[${timestamp}] WebSocket error: ${error.message}`, "error")
+      })
+
+      // Yield Opportunity Events
       this.socket.on("yield_opportunity", (data) => {
-        console.log("WebSocket: Received yield_opportunity event!", data);
-        this.addLog(`WebSocket: Received yield_opportunity - ${data.id || 'unknown'}`, "info");
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Received yield_opportunity event!`, data);
+        this.addLog(`[${timestamp}] WebSocket: Received yield_opportunity - ${data.id || 'unknown'}`, "info");
         this.addOpportunity(data)
       })
 
+      // Portfolio Update Events - REWRITTEN WITH TIMING DEBUGGING
       this.socket.on("portfolio_update", (data) => {
-        console.log("WebSocket: Received portfolio_update event!", data);
-        console.log("portfolio_update data structure:", JSON.stringify(data, null, 2));
-        this.addLog(`WebSocket: Received portfolio_update - ${data.allocations?.length || 0} allocations`, "info");
-        console.log("About to call updatePortfolio with data:", data);
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Received portfolio_update event!`, data);
+        console.log(`[${timestamp}] portfolio_update data structure:`, JSON.stringify(data, null, 2));
+        this.addLog(`[${timestamp}] WebSocket: Received portfolio_update - ${data.allocations?.length || 0} allocations`, "info");
+        
+        // Validate data structure
+        if (!data || !Array.isArray(data.allocations)) {
+          console.error(`[${timestamp}] Invalid portfolio_update data:`, data);
+          this.addLog(`[${timestamp}] Invalid portfolio_update data received`, "error");
+          return;
+        }
+
+        // Process portfolio update with timing
         try {
-          this.updatePortfolio(data);
-          console.log("updatePortfolio called successfully");
+          console.log(`[${timestamp}] Processing portfolio update...`);
+          this.processPortfolioUpdate(data);
+          console.log(`[${timestamp}] Portfolio update processed successfully`);
         } catch (error) {
-          console.error("Error in updatePortfolio:", error);
+          console.error(`[${timestamp}] Error processing portfolio update:`, error);
+          this.addLog(`[${timestamp}] Error processing portfolio update: ${error.message}`, "error");
         }
       })
 
+      // Risk Alert Events
       this.socket.on("risk_alert", (data) => {
-        console.log("WebSocket: Received risk_alert event!", data);
-        this.addLog(`WebSocket: Received risk_alert - ${data.type || 'unknown'}`, "info");
-        console.log("About to call addRiskAlert with data:", data);
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Received risk_alert event!`, data);
+        this.addLog(`[${timestamp}] WebSocket: Received risk_alert - ${data.type || 'unknown'}`, "info");
+        console.log(`[${timestamp}] About to call addRiskAlert with data:`, data);
         try {
           this.addRiskAlert(data);
-          console.log("addRiskAlert called successfully");
+          console.log(`[${timestamp}] addRiskAlert called successfully`);
         } catch (error) {
-          console.error("Error in addRiskAlert:", error);
+          console.error(`[${timestamp}] Error in addRiskAlert:`, error);
         }
       })
 
+      // Log Message Events
       this.socket.on("log_message", (data) => {
+        const timestamp = new Date().toISOString()
         const message = typeof data === "string" ? data : data.message || JSON.stringify(data)
-        this.addLog(message, data.level || "info")
+        this.addLog(`[${timestamp}] ${message}`, data.level || "info")
       })
 
       // Agent events
       this.socket.on("agent_created", () => {
+        const timestamp = new Date().toISOString()
         this.loadAgents()
-        this.addLog("Agent created", "info")
+        this.addLog(`[${timestamp}] Agent created`, "info")
       })
 
       this.socket.on("agent_started", () => {
+        const timestamp = new Date().toISOString()
         this.loadAgents()
-        this.addLog("Agent started", "info")
+        this.addLog(`[${timestamp}] Agent started`, "info")
       })
 
       this.socket.on("agent_stopped", () => {
+        const timestamp = new Date().toISOString()
         this.loadAgents()
-        this.addLog("Agent stopped", "info")
+        this.addLog(`[${timestamp}] Agent stopped`, "info")
       })
 
       // Swarm events
       this.socket.on("swarm_created", () => {
+        const timestamp = new Date().toISOString()
         this.loadSwarms()
-        this.addLog("Swarm created", "info")
+        this.addLog(`[${timestamp}] Swarm created`, "info")
       })
 
       this.socket.on("swarm_started", () => {
+        const timestamp = new Date().toISOString()
         this.loadSwarms()
-        this.addLog("Swarm started", "info")
+        this.addLog(`[${timestamp}] Swarm started`, "info")
       })
 
       this.socket.on("swarm_stopped", () => {
+        const timestamp = new Date().toISOString()
         this.loadSwarms()
-        this.addLog("Swarm stopped", "info")
+        this.addLog(`[${timestamp}] Swarm stopped`, "info")
       })
 
-      // Catch-all event listener to debug what events are actually being received
+      // COMPREHENSIVE DEBUGGING - Catch all events with timestamps
       this.socket.onAny((eventName, ...args) => {
-        console.log(`WebSocket: Received event '${eventName}' with args:`, args);
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] WebSocket: Received event '${eventName}' with args:`, args);
         if (eventName === 'portfolio_update') {
-          console.log('portfolio_update caught by onAny:', args[0]);
+          console.log(`[${timestamp}] portfolio_update caught by onAny:`, args[0]);
         }
       })
+
+      // Manual event listeners for testing with timestamps
+      this.socket.on("PORTFOLIO_UPDATE", (data) => {
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] MANUAL PORTFOLIO_UPDATE LISTENER:`, data);
+      })
+
+      this.socket.on("portfolio_updated", (data) => {
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] MANUAL portfolio_updated LISTENER:`, data);
+      })
+
+      // Send connection confirmation to server
+      this.socket.emit('client_ready', { 
+        timestamp: new Date().toISOString(),
+        clientId: this.socket.id,
+        userAgent: navigator.userAgent
+      });
+
     } catch (error) {
-      this.addLog(`WebSocket connection failed: ${error.message}`, "error")
+      const timestamp = new Date().toISOString()
+      this.addLog(`[${timestamp}] WebSocket connection failed: ${error.message}`, "error")
       this.updateConnectionStatus(false)
+      console.error(`[${timestamp}] WebSocket connection failed:`, error);
     }
+  }
+
+  // Process any pending events that arrived before connection was ready
+  processPendingEvents() {
+    if (this.pendingEvents.length > 0) {
+      const timestamp = new Date().toISOString()
+      console.log(`[${timestamp}] Processing ${this.pendingEvents.length} pending events...`);
+      this.pendingEvents.forEach(event => {
+        this.processPortfolioUpdate(event);
+      });
+      this.pendingEvents = [];
+    }
+  }
+
+  // REWRITTEN PORTFOLIO UPDATE LOGIC WITH TIMESTAMP DEBUGGING
+  processPortfolioUpdate(data) {
+    const timestamp = new Date().toISOString()
+    console.log(`[${timestamp}] Processing portfolio update with data:`, data);
+    
+    // Store the portfolio data
+    this.portfolioData = data.allocations || [];
+    console.log(`[${timestamp}] Stored portfolio data:`, this.portfolioData);
+    
+    // Update all portfolio components with timing
+    console.log(`[${timestamp}] Updating portfolio metrics...`);
+    this.updatePortfolioMetrics(data);
+    
+    console.log(`[${timestamp}] Rendering portfolio chart...`);
+    this.renderPortfolioChart();
+    
+    console.log(`[${timestamp}] Rendering portfolio table...`);
+    this.renderPortfolioTable();
+    
+    // Log success
+    this.addLog(`[${timestamp}] Portfolio allocation updated with ${this.portfolioData.length} allocations`, "info");
+    console.log(`[${timestamp}] Portfolio update processing completed successfully`);
+  }
+
+  updatePortfolioMetrics(data) {
+    console.log("Updating portfolio metrics with data:", data);
+    
+    const expectedYield = data.totalExpectedYield || this.calculateExpectedYield();
+    const totalRisk = data.totalRisk || this.calculateTotalRisk();
+
+    console.log("Calculated metrics - Expected Yield:", expectedYield, "Total Risk:", totalRisk);
+
+    // Update Expected Yield
+    const expectedYieldElement = document.getElementById("expected-yield");
+    if (expectedYieldElement) {
+      expectedYieldElement.textContent = `${expectedYield.toFixed(2)}%`;
+      console.log("Updated expected yield display");
+    } else {
+      console.error("Expected yield element not found");
+    }
+
+    // Update Total Risk
+    const riskElement = document.getElementById("total-risk");
+    if (riskElement) {
+      // Convert numeric risk to string for display
+      let riskText = totalRisk;
+      if (typeof totalRisk === 'number') {
+        if (totalRisk >= 0.7) riskText = "High";
+        else if (totalRisk >= 0.4) riskText = "Medium";
+        else riskText = "Low";
+      }
+      
+      // Ensure riskText is a string before calling toLowerCase()
+      const riskTextString = String(riskText);
+      
+      riskElement.textContent = riskTextString;
+      riskElement.className = `metric-value risk-${riskTextString.toLowerCase()}`;
+      console.log("Updated total risk display:", riskTextString);
+    } else {
+      console.error("Total risk element not found");
+    }
+  }
+
+  calculateExpectedYield() {
+    if (this.portfolioData.length === 0) return 0;
+
+    const totalYield = this.portfolioData.reduce((total, item) => {
+      return total + (item.allocation * (item.expectedYield || 0));
+    }, 0);
+
+    console.log("Calculated expected yield:", totalYield * 100);
+    return totalYield * 100; // Convert to percentage
+  }
+
+  calculateTotalRisk() {
+    if (this.portfolioData.length === 0) return 0.6; // Default medium risk
+
+    const totalAllocation = this.portfolioData.reduce((sum, item) => sum + item.allocation, 0);
+    if (totalAllocation === 0) return 0.6;
+
+    const weightedRisk = this.portfolioData.reduce((total, item) => {
+      return total + (item.allocation * (item.riskScore || 0.6));
+    }, 0) / totalAllocation;
+
+    console.log("Calculated total risk:", weightedRisk);
+    return weightedRisk;
+  }
+
+  renderPortfolioChart() {
+    console.log("Rendering portfolio chart with data:", this.portfolioData);
+    
+    const canvas = document.getElementById("portfolio-chart");
+    if (!canvas) {
+      console.error("Portfolio chart canvas not found");
+      return;
+    }
+    
+    const ctx = canvas.getContext("2d");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 90;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (this.portfolioData.length === 0) {
+      // Draw empty circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "var(--border-color)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const totalAllocationElement = document.getElementById("total-allocation");
+      if (totalAllocationElement) {
+        totalAllocationElement.textContent = "0%";
+      }
+      this.renderChartLegend([]);
+      console.log("Rendered empty portfolio chart");
+      return;
+    }
+
+    // Draw pie chart
+    const colors = ["#00d4ff", "#00ff88", "#ffaa00", "#ff6b6b", "#9c27b0", "#ff9800", "#4caf50", "#e91e63"];
+    let currentAngle = -Math.PI / 2;
+    let totalAllocation = 0;
+
+    this.portfolioData.forEach((item, index) => {
+      const percentage = item.allocation * 100; // Convert decimal to percentage
+      totalAllocation += percentage;
+      const sliceAngle = (percentage / 100) * 2 * Math.PI;
+
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+      ctx.closePath();
+      ctx.fillStyle = colors[index % colors.length];
+      ctx.fill();
+      ctx.strokeStyle = "var(--primary-bg)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      currentAngle += sliceAngle;
+    });
+
+    // Update total allocation display
+    const totalAllocationElement = document.getElementById("total-allocation");
+    if (totalAllocationElement) {
+      totalAllocationElement.textContent = `${totalAllocation.toFixed(1)}%`;
+    }
+    
+    this.renderChartLegend(colors);
+    console.log("Rendered portfolio chart with", this.portfolioData.length, "allocations");
+  }
+
+  renderChartLegend(colors) {
+    const legend = document.getElementById("chart-legend");
+    if (!legend) {
+      console.error("Chart legend element not found");
+      return;
+    }
+
+    if (this.portfolioData.length === 0) {
+      legend.innerHTML = "";
+      return;
+    }
+
+    legend.innerHTML = this.portfolioData
+      .map(
+        (item, index) => `
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: ${colors[index % colors.length]}"></div>
+          <span>${item.opportunityId} (${(item.allocation * 100).toFixed(1)}%)</span>
+        </div>
+      `,
+      )
+      .join("")
+    
+    console.log("Rendered chart legend with", this.portfolioData.length, "items");
+  }
+
+  renderPortfolioTable() {
+    console.log("Rendering portfolio table with data:", this.portfolioData);
+    
+    const tbody = document.getElementById("allocation-tbody");
+    if (!tbody) {
+      console.error("Allocation table body not found");
+      return;
+    }
+
+    if (this.portfolioData.length === 0) {
+      tbody.innerHTML = '<tr class="no-data-row"><td colspan="4">No allocations</td></tr>';
+      console.log("Rendered empty portfolio table");
+      return;
+    }
+
+    tbody.innerHTML = this.portfolioData
+      .map(
+        (item) => `
+        <tr>
+          <td>${item.opportunityId}</td>
+          <td>${item.chain}</td>
+          <td>${(item.allocation * 100).toFixed(1)}%</td>
+          <td class="apy-${item.expectedYield >= 0.2 ? "high" : item.expectedYield >= 0.1 ? "medium" : "low"}">
+            ${item.expectedYield ? (item.expectedYield * 100).toFixed(2) + "%" : "N/A"}
+          </td>
+        </tr>
+      `,
+      )
+      .join("");
+    
+    console.log("Rendered portfolio table with", this.portfolioData.length, "rows");
   }
 
   updateConnectionStatus(connected) {
@@ -734,149 +1031,6 @@ class YieldSwarmDashboard {
 
   filterOpportunities() {
     this.renderOpportunities()
-  }
-
-  updatePortfolio(data) {
-    this.portfolioData = data.allocations || []
-    this.renderPortfolioChart()
-    this.renderPortfolioTable()
-    this.updatePortfolioMetrics(data)
-    this.addLog("Portfolio allocation updated", "info")
-  }
-
-  updatePortfolioMetrics(data) {
-    const expectedYield = data.totalExpectedYield || this.calculateExpectedYield()
-    const totalRisk = data.totalRisk || this.calculateTotalRisk()
-
-    document.getElementById("expected-yield").textContent = `${expectedYield.toFixed(2)}%`
-
-    const riskElement = document.getElementById("total-risk")
-    
-    // Convert numeric risk to string for display
-    let riskText = totalRisk
-    if (typeof totalRisk === 'number') {
-      if (totalRisk >= 0.7) riskText = "High"
-      else if (totalRisk >= 0.4) riskText = "Medium"
-      else riskText = "Low"
-    }
-    
-    // Ensure riskText is a string before calling toLowerCase()
-    const riskTextString = String(riskText)
-    
-    riskElement.textContent = riskTextString
-    riskElement.className = `metric-value risk-${riskTextString.toLowerCase()}`
-  }
-
-  calculateExpectedYield() {
-    if (this.portfolioData.length === 0) return 0
-
-    return this.portfolioData.reduce((total, item) => {
-      return total + (item.allocation * (item.expectedYield || 0))
-    }, 0)
-  }
-
-  calculateTotalRisk() {
-    if (this.portfolioData.length === 0) return "Low"
-
-    const avgRisk = this.portfolioData.reduce((total, item) => {
-      const riskScore = item.risk === "high" ? 3 : item.risk === "medium" ? 2 : 1
-      return total + (item.allocation * riskScore) / 100
-    }, 0)
-
-    if (avgRisk > 2.5) return "High"
-    if (avgRisk > 1.5) return "Medium"
-    return "Low"
-  }
-
-  renderPortfolioChart() {
-    const canvas = document.getElementById("portfolio-chart")
-    const ctx = canvas.getContext("2d")
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-    const radius = 90
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    if (this.portfolioData.length === 0) {
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
-      ctx.strokeStyle = "var(--border-color)"
-      ctx.lineWidth = 2
-      ctx.stroke()
-
-      document.getElementById("total-allocation").textContent = "0%"
-      this.renderChartLegend([])
-      return
-    }
-
-    const colors = ["#00d4ff", "#00ff88", "#ffaa00", "#ff6b6b", "#9c27b0", "#ff9800", "#4caf50", "#e91e63"]
-    let currentAngle = -Math.PI / 2
-    let totalAllocation = 0
-
-    this.portfolioData.forEach((item, index) => {
-      const percentage = item.allocation * 100 // Convert decimal to percentage
-      totalAllocation += percentage
-      const sliceAngle = (percentage / 100) * 2 * Math.PI
-
-      ctx.beginPath()
-      ctx.moveTo(centerX, centerY)
-      ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle)
-      ctx.closePath()
-      ctx.fillStyle = colors[index % colors.length]
-      ctx.fill()
-      ctx.strokeStyle = "var(--primary-bg)"
-      ctx.lineWidth = 2
-      ctx.stroke()
-
-      currentAngle += sliceAngle
-    })
-
-    document.getElementById("total-allocation").textContent = `${totalAllocation.toFixed(1)}%`
-    this.renderChartLegend(colors)
-  }
-
-  renderChartLegend(colors) {
-    const legend = document.getElementById("chart-legend")
-
-    if (this.portfolioData.length === 0) {
-      legend.innerHTML = ""
-      return
-    }
-
-    legend.innerHTML = this.portfolioData
-      .map(
-        (item, index) => `
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: ${colors[index % colors.length]}"></div>
-          <span>${item.opportunityId} (${item.allocation}%)</span>
-        </div>
-      `,
-      )
-      .join("")
-  }
-
-  renderPortfolioTable() {
-    const tbody = document.getElementById("allocation-tbody")
-
-    if (this.portfolioData.length === 0) {
-      tbody.innerHTML = '<tr class="no-data-row"><td colspan="4">No allocations</td></tr>'
-      return
-    }
-
-    tbody.innerHTML = this.portfolioData
-      .map(
-        (item) => `
-        <tr>
-          <td>${item.opportunityId}</td>
-          <td>${item.chain}</td>
-          <td>${(item.allocation * 100).toFixed(1)}%</td>
-          <td class="apy-${item.expectedYield >= 20 ? "high" : item.expectedYield >= 10 ? "medium" : "low"}">
-            ${item.expectedYield ? (item.expectedYield * 100).toFixed(2) + "%" : "N/A"}
-          </td>
-        </tr>
-      `,
-      )
-      .join("")
   }
 
   addRiskAlert(alertData) {
