@@ -5,6 +5,11 @@ using HiGHS
 using Statistics
 using LinearAlgebra
 using UUIDs
+using HTTP
+using DotEnv
+
+# Load environment variables from .env file
+DotEnv.config(path="../.env")
 
 # Tell JSON.jl how to serialize UUIDs
 JSON.lower(id::UUID) = string(id)
@@ -24,43 +29,46 @@ using .Storage
 using .Events
 
 # --- LLM Integration ---
-# Simple LLM integration for basic chat functionality
 function llm_chat(provider::String, prompt::String, config::Dict)
-    # For now, we'll implement a simple echo LLM that returns valid JSON
-    # In a real implementation, you'd integrate with OpenAI, Anthropic, etc.
-    if contains(prompt, "discover_opportunities")
-        response_data = Dict(
-            "opportunities" => [
-                Dict("id" => "llm-mock-opp-1", "dex" => "llm-dex", "pool" => "llm-pool-1", "apy" => 150.0, "tvl" => 500000, "riskScore" => 0.4, "volume24h" => 250000),
-                Dict("id" => "llm-mock-opp-2", "dex" => "llm-dex", "pool" => "llm-pool-2", "apy" => 120.0, "tvl" => 750000, "riskScore" => 0.3, "volume24h" => 350000)
-            ]
-        )
-    elseif contains(prompt, "optimize_allocation")
-        response_data = Dict(
-            "allocations" => [
-                Dict("opportunityId" => "llm-mock-opp-1", "allocation" => 0.6, "expectedYield" => 90.0, "riskScore" => 0.4),
-                Dict("opportunityId" => "llm-mock-opp-2", "allocation" => 0.4, "expectedYield" => 48.0, "riskScore" => 0.3)
-            ]
-        )
-    elseif contains(prompt, "assess_portfolio_risk")
-        response_data = Dict(
-            "risk_assessment" => Dict(
-                "overall_risk" => 7.5,
-                "impermanent_loss_risk" => 0.8,
-                "liquidity_risk" => 0.7,
-                "recommendations" => ["Reduce exposure to high-risk assets", "Diversify across more chains"]
-            )
-        )
-    else
-        response_data = Dict("response" => "LLM Echo: " * prompt)
-    end
-
-    return Dict(
-        "response" => JSON.json(response_data),
-        "provider" => provider,
-        "model" => get(config, "model", "echo-json"),
-        "usage" => Dict("tokens" => length(prompt))
+    hf_token = ENV["HF_TOKEN"]
+    api_url = "https://router.huggingface.co/v1/chat/completions"
+    
+    headers = Dict(
+        "Authorization" => "Bearer " * hf_token,
+        "Content-Type" => "application/json"
     )
+    
+    payload = Dict(
+        "messages" => [
+            Dict("role" => "user", "content" => prompt)
+        ],
+        "model" => "zai-org/GLM-4.5-Air:fireworks-ai",
+        "stream" => false
+    )
+    
+    try
+        response = HTTP.post(api_url, headers, JSON.json(payload))
+        response_body = JSON.parse(String(response.body))
+        
+        # Extract the content from the response
+        llm_response_content = response_body["choices"][1]["message"]["content"]
+        
+        return Dict(
+            "response" => llm_response_content,
+            "provider" => provider,
+            "model" => get(config, "model", "zai-org/GLM-4.5-Air:fireworks-ai"),
+            "usage" => get(response_body, "usage", Dict("tokens" => length(prompt)))
+        )
+    catch e
+        println("Error calling Hugging Face API: $e")
+        # Fallback to a simple error message
+        return Dict(
+            "response" => JSON.json(Dict("error" => "Failed to get response from LLM.")),
+            "provider" => provider,
+            "model" => get(config, "model", "zai-org/GLM-4.5-Air:fireworks-ai"),
+            "usage" => Dict("tokens" => length(prompt))
+        )
+    end
 end
 
 # --- Command Dispatcher ---
