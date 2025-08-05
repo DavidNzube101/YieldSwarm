@@ -1,1 +1,1 @@
-{"b30b5300-bf48-4532-9671-8efda518de59":{"name":"RiskAgentTom","status":"running","config":{},"id":"b30b5300-bf48-4532-9671-8efda518de59","chain":"solana","type":"risk"},"cc138989-87f3-446a-8eef-b6a89895b9a9":{"name":"DiscoveryAgentBob","status":"running","config":{},"id":"cc138989-87f3-446a-8eef-b6a89895b9a9","chain":"solana","type":"discovery"},"379fec6c-3beb-440a-8791-9f2322819786":{"name":"AnalysisAgentLisa","status":"running","config":{},"id":"379fec6c-3beb-440a-8791-9f2322819786","chain":"solana","type":"analysis"}}
+{}

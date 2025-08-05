@@ -2,19 +2,22 @@ import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { PortfolioAllocation, RiskAlert, RiskAlertType, RiskSeverity, AgentStatus, SwarmMessage, MessageType, MessagePriority } from '../types';
 import { calculateSeverity } from '../utils/riskCalculations';
+import { CustomJuliaBridge } from '../../backend/CustomJuliaBridge';
 
 export class RiskAgent {
   private client: IAgentCommunication;
   private logger: Logger;
+  private bridge: CustomJuliaBridge;
   private status: AgentStatus = AgentStatus.INACTIVE;
   private isRunning: boolean = false;
   private currentPortfolio: PortfolioAllocation[] = [];
   private riskThresholds: Map<RiskAlertType, number> = new Map();
   private monitoringInterval: NodeJS.Timeout | null = null;
 
-  constructor(client: IAgentCommunication) {
+  constructor(client: IAgentCommunication, bridge: CustomJuliaBridge) {
     this.client = client;
     this.logger = new Logger('RiskAgent');
+    this.bridge = bridge;
     this.initializeRiskThresholds();
   }
 
@@ -77,6 +80,17 @@ export class RiskAgent {
     this.logger.debug(`Performing risk assessment for ${this.currentPortfolio.length} allocations`);
 
     try {
+      // First, try LLM-based risk assessment
+      const llmRiskAlerts = await this.assessRiskWithLLM();
+      if (llmRiskAlerts && llmRiskAlerts.length > 0) {
+        this.logger.info('Using LLM-based risk assessment');
+        for (const alert of llmRiskAlerts) {
+          await this.broadcastRiskAlert(alert);
+        }
+        return;
+      }
+
+      // Fallback to traditional risk assessment
       const riskAlerts: RiskAlert[] = [];
 
       // Check for high impermanent loss risk
@@ -99,13 +113,9 @@ export class RiskAgent {
       const crossChainRiskAlert = await this.checkCrossChainRisk();
       if (crossChainRiskAlert) riskAlerts.push(crossChainRiskAlert);
 
-      // Broadcast risk alerts
+      // Broadcast all risk alerts
       for (const alert of riskAlerts) {
         await this.broadcastRiskAlert(alert);
-      }
-
-      if (riskAlerts.length > 0) {
-        this.logger.warn(`Generated ${riskAlerts.length} risk alerts`);
       }
     } catch (error) {
       this.logger.error('Error performing risk assessment:', error);
@@ -331,5 +341,173 @@ export class RiskAgent {
       totalAllocation,
       riskThresholds: Object.fromEntries(this.riskThresholds)
     };
+  }
+
+  // --- LLM Integration Methods ---
+
+  private async assessRiskWithLLM(): Promise<RiskAlert[]> {
+    try {
+      this.logger.info('Attempting LLM-based risk assessment...');
+      
+      const riskMetrics = this.calculateRiskMetrics();
+      
+      const llmResult = await this.bridge.runCommand('llm.assess_portfolio_risk', {
+        portfolio: this.currentPortfolio.map(allocation => ({
+          opportunityId: allocation.opportunityId,
+          allocation: allocation.allocation,
+          expectedYield: allocation.expectedYield,
+          riskScore: allocation.riskScore,
+          chain: allocation.chain
+        })),
+        risk_metrics: riskMetrics,
+        provider: 'echo',
+        config: {
+          model: 'gpt-4',
+          temperature: 0.7
+        }
+      });
+
+      if (llmResult && llmResult.response) {
+        this.logger.info('Successfully received LLM-based risk assessment');
+        return this.parseLLMRiskAssessment(llmResult.response);
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('LLM risk assessment failed, falling back to traditional method:', error);
+      return [];
+    }
+  }
+
+  private calculateRiskMetrics(): any {
+    const totalAllocation = this.currentPortfolio.reduce((sum, alloc) => sum + alloc.allocation, 0);
+    const averageRiskScore = this.currentPortfolio.reduce((sum, alloc) => sum + alloc.riskScore, 0) / this.currentPortfolio.length;
+    const chains = Array.from(new Set(this.currentPortfolio.map(alloc => alloc.chain)));
+    
+    return {
+      totalAllocation,
+      averageRiskScore,
+      numberOfAllocations: this.currentPortfolio.length,
+      chains,
+      concentrationRisk: this.calculateConcentrationRisk(),
+      crossChainRisk: chains.length === 1 ? 'high' : 'low'
+    };
+  }
+
+  private calculateConcentrationRisk(): number {
+    if (this.currentPortfolio.length === 0) return 0;
+    
+    // Calculate Herfindahl-Hirschman Index for concentration
+    const allocations = this.currentPortfolio.map(alloc => alloc.allocation);
+    const totalAllocation = allocations.reduce((sum, alloc) => sum + alloc, 0);
+    
+    if (totalAllocation === 0) return 0;
+    
+    const hhi = allocations.reduce((sum, alloc) => {
+      const share = alloc / totalAllocation;
+      return sum + (share * share);
+    }, 0);
+    
+    return hhi;
+  }
+
+  private parseLLMRiskAssessment(llmResponse: string): RiskAlert[] {
+    try {
+      this.logger.debug('Parsing LLM risk assessment:', llmResponse);
+      
+      // For echo LLM, create basic risk alerts
+      if (llmResponse.includes('LLM Response:')) {
+        this.logger.info('Using echo LLM fallback risk assessment');
+        return this.createFallbackRiskAlerts();
+      }
+      
+      const response = JSON.parse(llmResponse);
+      const alerts: RiskAlert[] = [];
+      
+      if (response.risk_assessment) {
+        const assessment = response.risk_assessment;
+        
+        // Parse overall portfolio risk
+        if (assessment.overall_risk && assessment.overall_risk > 7) {
+          alerts.push({
+            id: `llm-overall-risk-${Date.now()}`,
+            type: RiskAlertType.HIGH_VOLATILITY,
+            severity: RiskSeverity.CRITICAL,
+            message: `LLM Assessment: High overall portfolio risk (${assessment.overall_risk}/10)`,
+            affectedOpportunities: this.currentPortfolio.map(alloc => alloc.opportunityId),
+            recommendations: assessment.recommendations || ['Consider reducing exposure', 'Diversify across more opportunities'],
+            timestamp: Date.now()
+          });
+        }
+        
+        // Parse specific risk factors
+        if (assessment.impermanent_loss_risk && assessment.impermanent_loss_risk > 0.7) {
+          alerts.push({
+            id: `llm-il-risk-${Date.now()}`,
+            type: RiskAlertType.HIGH_IMPERMANENT_LOSS,
+            severity: RiskSeverity.HIGH,
+            message: `LLM Assessment: High impermanent loss risk detected`,
+            affectedOpportunities: this.currentPortfolio.map(alloc => alloc.opportunityId),
+            recommendations: ['Monitor price movements closely', 'Consider hedging strategies'],
+            timestamp: Date.now()
+          });
+        }
+        
+        if (assessment.liquidity_risk && assessment.liquidity_risk > 0.6) {
+          alerts.push({
+            id: `llm-liquidity-risk-${Date.now()}`,
+            type: RiskAlertType.LOW_LIQUIDITY,
+            severity: RiskSeverity.MEDIUM,
+            message: `LLM Assessment: Low liquidity risk detected`,
+            affectedOpportunities: this.currentPortfolio.map(alloc => alloc.opportunityId),
+            recommendations: ['Consider reducing position sizes', 'Monitor liquidity metrics'],
+            timestamp: Date.now()
+          });
+        }
+      }
+      
+      return alerts;
+    } catch (error) {
+      this.logger.warn('Failed to parse LLM risk assessment, using fallback:', error);
+      return this.createFallbackRiskAlerts();
+    }
+  }
+
+  private createFallbackRiskAlerts(): RiskAlert[] {
+    const alerts: RiskAlert[] = [];
+    
+    // Create basic risk alerts based on portfolio characteristics
+    if (this.currentPortfolio.length > 0) {
+      const averageRiskScore = this.currentPortfolio.reduce((sum, alloc) => sum + alloc.riskScore, 0) / this.currentPortfolio.length;
+      
+      // High risk alert if average risk score is high
+      if (averageRiskScore > 0.7) {
+        alerts.push({
+          id: `llm-high-risk-${Date.now()}`,
+          type: RiskAlertType.HIGH_VOLATILITY,
+          severity: RiskSeverity.HIGH,
+          message: `LLM Assessment: High average risk score (${averageRiskScore.toFixed(2)})`,
+          affectedOpportunities: this.currentPortfolio.map(alloc => alloc.opportunityId),
+          recommendations: ['Consider reducing high-risk allocations', 'Diversify into lower-risk opportunities'],
+          timestamp: Date.now()
+        });
+      }
+      
+      // Concentration risk alert
+      if (this.currentPortfolio.length < 3) {
+        alerts.push({
+          id: `llm-concentration-risk-${Date.now()}`,
+          type: RiskAlertType.HIGH_VOLATILITY,
+          severity: RiskSeverity.MEDIUM,
+          message: `LLM Assessment: Low portfolio diversification (${this.currentPortfolio.length} allocations)`,
+          affectedOpportunities: this.currentPortfolio.map(alloc => alloc.opportunityId),
+          recommendations: ['Add more opportunities to portfolio', 'Consider cross-chain diversification'],
+          timestamp: Date.now()
+        });
+      }
+    }
+    
+    this.logger.info(`Created ${alerts.length} LLM fallback risk alerts`);
+    return alerts;
   }
 } 

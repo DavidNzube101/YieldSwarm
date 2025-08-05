@@ -219,25 +219,42 @@ app.post('/agents', async (req, res) => {
   try {
     const { name, type, chain, config } = req.body;
     logger.info(`Received request to create agent: ${name}, type: ${type}, chain: ${chain}`);
+    
+    let agentType = type;
+    // Force the correct agent type based on the agent's name to make it robust against UI errors
+    if (name === 'DiscoveryAgent') {
+      agentType = 'discovery';
+    } else if (name === 'AnalysisAgent') {
+      agentType = 'analysis';
+    } else if (name === 'RiskAgent') {
+      agentType = 'risk';
+    }
+
+    if (agentType !== type) {
+        logger.warn(`Correcting agent type for ${name} from '${type}' to '${agentType}'.`);
+    }
+
     const agentCommunication = coordinator.getAgentCommunication();
+    const bridge = coordinator.getBridge(); // Get the bridge from the coordinator
 
-    // For discovery agents, we might have specific logic, but the creation call is the same
-    const juliaAgent = await coordinator.createAgent({ name, type, chain, config });
+    // Create the Julia-side agent
+    const juliaAgent = await coordinator.createAgent({ name, type: agentType, chain, config });
 
-    if (type === 'discovery' && chain) {
-      const discoveryAgent = new DiscoveryAgent(chain, agentCommunication, globalConfig);
+    // Create the Node.js-side agent instance
+    if (agentType === 'discovery' && chain) {
+      const discoveryAgent = new DiscoveryAgent(chain, agentCommunication, globalConfig, bridge);
       await discoveryAgent.start();
       discoveryAgents.set(chain, discoveryAgent);
     } else {
       let nodeAgentInstance: AnalysisAgent | RiskAgent | ExecutionAgent | undefined;
-      switch (type) {
+      switch (agentType) {
         case 'analysis':
-          nodeAgentInstance = new AnalysisAgent(agentCommunication);
+          nodeAgentInstance = new AnalysisAgent(agentCommunication, bridge);
           analysisAgent = nodeAgentInstance;
           agentCommunication.registerHandler('analysis-agent', nodeAgentInstance.onMessage.bind(nodeAgentInstance));
           break;
         case 'risk':
-          nodeAgentInstance = new RiskAgent(agentCommunication);
+          nodeAgentInstance = new RiskAgent(agentCommunication, bridge);
           riskAgent = nodeAgentInstance;
           agentCommunication.registerHandler('risk-agent', nodeAgentInstance.onMessage.bind(nodeAgentInstance));
           break;
@@ -327,6 +344,15 @@ app.get('/swarms', async (_req, res) => {
 app.post('/swarms', async (req, res) => {
   try {
     const { name, algorithm, agents, config } = req.body;
+
+    // Check if a swarm with the same name already exists
+    const existingSwarms = await coordinator.listSwarms();
+    const swarmExists = existingSwarms.some((s: any) => s.name === name);
+
+    if (swarmExists) {
+      return res.status(409).json({ error: `Swarm with name '${name}' already exists.` });
+    }
+
     const swarm = await coordinator.createSwarm(name, algorithm, config);
 
     if (agents && agents.length > 0) {

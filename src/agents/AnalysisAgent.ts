@@ -2,21 +2,24 @@ import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { YieldOpportunity, PortfolioAllocation, AgentStatus, SwarmMessage, MessageType, MessagePriority } from '../types';
 import { YieldCalculator } from '../defi/YieldCalculator';
+import { CustomJuliaBridge } from '../../backend/CustomJuliaBridge';
 
 export class AnalysisAgent {
   private client: IAgentCommunication;
   private logger: Logger;
   private yieldCalculator: YieldCalculator;
+  private bridge: CustomJuliaBridge;
   private status: AgentStatus = AgentStatus.INACTIVE;
   private opportunities: Map<string, YieldOpportunity> = new Map();
   private currentPortfolio: PortfolioAllocation[] = [];
   private optimizationTimeout: NodeJS.Timeout | null = null;
   private isOptimizationPending: boolean = false;
 
-  constructor(client: IAgentCommunication) {
+  constructor(client: IAgentCommunication, bridge: CustomJuliaBridge) {
     this.client = client;
     this.logger = new Logger('AnalysisAgent');
     this.yieldCalculator = new YieldCalculator();
+    this.bridge = bridge;
   }
 
   async start(): Promise<void> {
@@ -84,6 +87,12 @@ export class AnalysisAgent {
     this.logger.debug(`Calculating optimal allocations for ${opportunities.length} opportunities`);
 
     try {
+      // First, try LLM-based optimization
+      const llmAllocations = await this.optimizeWithLLM(opportunities);
+      if (llmAllocations && llmAllocations.length > 0) {
+        this.logger.info('Using LLM-optimized allocations');
+        return llmAllocations;
+      }
       const optimizationData = this._toSnakeCase({
         opportunities: opportunities.map(opp => ({
           id: opp.id,
@@ -94,16 +103,14 @@ export class AnalysisAgent {
           volume24h: opp.volume24h
         })),
         constraints: {
-          riskTolerance: 0.7,
-          maxAllocationPerOpportunity: 0.2,
-          minAllocationPerOpportunity: 0.05,
+          riskTolerance: 0.8, // Increased from 0.7
+          maxAllocationPerOpportunity: 0.3, // Increased from 0.2
+          minAllocationPerOpportunity: 0.01, // Decreased from 0.05
           totalAllocation: 1.0
         }
       });
 
-      this.logger.debug(`[DEBUG] Sending optimization data to Julia: ${JSON.stringify(optimizationData)}`);
       const result = await this.yieldCalculator.optimizePortfolio(optimizationData);
-
       return result.allocations.map((allocation: any) => ({
         opportunityId: allocation.opportunity_id,
         allocation: allocation.allocation,
@@ -115,6 +122,121 @@ export class AnalysisAgent {
       this.logger.error('Error calculating optimal allocations:', error);
       return this.calculateFallbackAllocations(opportunities);
     }
+  }
+
+  // --- LLM Integration Methods ---
+
+  private async optimizeWithLLM(opportunities: YieldOpportunity[]): Promise<PortfolioAllocation[]> {
+    try {
+      this.logger.info('Attempting LLM-based portfolio optimization...');
+      
+      const llmResult = await this.bridge.runCommand('llm.optimize_allocation', {
+        opportunities: opportunities.map(opp => ({
+          id: opp.id,
+          apy: opp.apy,
+          riskScore: opp.riskScore,
+          chain: opp.chain,
+          tvl: opp.tvl,
+          volume24h: opp.volume24h,
+          dex: opp.dex,
+          pool: opp.pool
+        })),
+        constraints: {
+          riskTolerance: 0.8, // Increased from 0.7
+          maxAllocationPerOpportunity: 0.3, // Increased from 0.2
+          minAllocationPerOpportunity: 0.01, // Decreased from 0.05
+          totalAllocation: 1.0
+        },
+        provider: 'echo', // For now using echo, can be changed to 'openai', 'anthropic', etc.
+        config: {
+          model: 'gpt-4',
+          temperature: 0.7
+        }
+      });
+
+      if (llmResult && llmResult.response) {
+        this.logger.info('Successfully received LLM-optimized allocations');
+        return this.parseLLMAllocationResult(llmResult.response, opportunities);
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('LLM optimization failed, falling back to traditional method:', error);
+      return [];
+    }
+  }
+
+  private parseLLMAllocationResult(llmResponse: string, opportunities: YieldOpportunity[]): PortfolioAllocation[] {
+    try {
+      this.logger.debug('Parsing LLM allocation result:', llmResponse);
+      
+      // For echo LLM, create a simple allocation based on APY ranking
+      if (llmResponse.includes('LLM Response:')) {
+        this.logger.info('Using echo LLM fallback allocation');
+        return this.createFallbackAllocationFromAPY(opportunities);
+      }
+      
+      // Try to parse JSON response from real LLM
+      const response = JSON.parse(llmResponse);
+      
+      if (response.allocations && Array.isArray(response.allocations)) {
+        return response.allocations.map((allocation: any) => ({
+          opportunityId: allocation.opportunityId || allocation.id,
+          allocation: allocation.allocation || allocation.percentage,
+          expectedYield: allocation.expectedYield || 0,
+          riskScore: allocation.riskScore || 0.5,
+          chain: allocation.chain || 'unknown'
+        }));
+      }
+      
+      // Fallback parsing for different response formats
+      return this.calculateFallbackAllocations(opportunities);
+    } catch (error) {
+      this.logger.warn('Failed to parse LLM allocation result, using fallback:', error);
+      return this.calculateFallbackAllocations(opportunities);
+    }
+  }
+
+  private createFallbackAllocationFromAPY(opportunities: YieldOpportunity[]): PortfolioAllocation[] {
+    // Sort opportunities by APY (highest first)
+    const sortedOpportunities = [...opportunities].sort((a, b) => b.apy - a.apy);
+    
+    // Create allocation based on APY ranking
+    const totalAllocation = 1.0;
+    const maxAllocationPerOpportunity = 0.2;
+    const minAllocationPerOpportunity = 0.05;
+    
+    const allocations: PortfolioAllocation[] = [];
+    let remainingAllocation = totalAllocation;
+    
+    for (let i = 0; i < sortedOpportunities.length && remainingAllocation > 0; i++) {
+      const opportunity = sortedOpportunities[i];
+      
+      if (!opportunity) continue;
+      
+      // Calculate allocation based on APY ranking
+      let allocation = Math.min(maxAllocationPerOpportunity, remainingAllocation);
+      
+      // Ensure minimum allocation
+      if (allocation < minAllocationPerOpportunity && remainingAllocation >= minAllocationPerOpportunity) {
+        allocation = minAllocationPerOpportunity;
+      }
+      
+      if (allocation > 0) {
+        allocations.push({
+          opportunityId: opportunity.id,
+          allocation: allocation,
+          expectedYield: opportunity.apy / 100,
+          riskScore: opportunity.riskScore,
+          chain: opportunity.chain
+        });
+        
+        remainingAllocation -= allocation;
+      }
+    }
+    
+    this.logger.info(`Created LLM fallback allocation with ${allocations.length} opportunities`);
+    return allocations;
   }
 
   private calculateFallbackAllocations(opportunities: YieldOpportunity[]): PortfolioAllocation[] {
@@ -207,4 +329,3 @@ export class AnalysisAgent {
     }, {});
   }
 }
-""

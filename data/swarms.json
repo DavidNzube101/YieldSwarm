@@ -1,1 +1,1 @@
-{"6b5eb470-0153-4b47-a65c-e6d3db9c9cc5":{"agents":[{"name":"AnalysisAgentLisa","status":"running","config":{},"id":"379fec6c-3beb-440a-8791-9f2322819786","chain":"solana","type":"analysis"}],"name":"SwarmHQ","status":"running","algorithm":{"params":{},"type":"PortfolioOptimization"},"config":{},"id":"6b5eb470-0153-4b47-a65c-e6d3db9c9cc5"}}
+{}

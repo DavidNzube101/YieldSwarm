@@ -23,6 +23,46 @@ using .PortfolioOptimizer
 using .Storage
 using .Events
 
+# --- LLM Integration ---
+# Simple LLM integration for basic chat functionality
+function llm_chat(provider::String, prompt::String, config::Dict)
+    # For now, we'll implement a simple echo LLM that returns valid JSON
+    # In a real implementation, you'd integrate with OpenAI, Anthropic, etc.
+    if contains(prompt, "discover_opportunities")
+        response_data = Dict(
+            "opportunities" => [
+                Dict("id" => "llm-mock-opp-1", "dex" => "llm-dex", "pool" => "llm-pool-1", "apy" => 150.0, "tvl" => 500000, "riskScore" => 0.4, "volume24h" => 250000),
+                Dict("id" => "llm-mock-opp-2", "dex" => "llm-dex", "pool" => "llm-pool-2", "apy" => 120.0, "tvl" => 750000, "riskScore" => 0.3, "volume24h" => 350000)
+            ]
+        )
+    elseif contains(prompt, "optimize_allocation")
+        response_data = Dict(
+            "allocations" => [
+                Dict("opportunityId" => "llm-mock-opp-1", "allocation" => 0.6, "expectedYield" => 90.0, "riskScore" => 0.4),
+                Dict("opportunityId" => "llm-mock-opp-2", "allocation" => 0.4, "expectedYield" => 48.0, "riskScore" => 0.3)
+            ]
+        )
+    elseif contains(prompt, "assess_portfolio_risk")
+        response_data = Dict(
+            "risk_assessment" => Dict(
+                "overall_risk" => 7.5,
+                "impermanent_loss_risk" => 0.8,
+                "liquidity_risk" => 0.7,
+                "recommendations" => ["Reduce exposure to high-risk assets", "Diversify across more chains"]
+            )
+        )
+    else
+        response_data = Dict("response" => "LLM Echo: " * prompt)
+    end
+
+    return Dict(
+        "response" => JSON.json(response_data),
+        "provider" => provider,
+        "model" => get(config, "model", "echo-json"),
+        "usage" => Dict("tokens" => length(prompt))
+    )
+end
+
 # --- Command Dispatcher ---
 
 const COMMANDS = Dict(
@@ -96,6 +136,107 @@ const COMMANDS = Dict(
             println("DEBUG: Type of risk_tolerance in constraints: ", typeof(params["constraints"]["risk_tolerance"]))
         end
         PortfolioOptimizer.optimize_portfolio(params["opportunities"], params["constraints"])
+    end,
+
+    # --- LLM Commands ---
+    "llm.chat" => (params) -> begin
+        provider = get(params, "provider", "echo")
+        prompt = get(params, "prompt", "")
+        config = get(params, "config", Dict())
+        llm_chat(provider, prompt, config)
+    end,
+
+    "llm.analyze_opportunity" => (params) -> begin
+        provider = get(params, "provider", "echo")
+        opportunity = get(params, "opportunity", Dict())
+        market_context = get(params, "market_context", Dict())
+        
+        prompt = """
+        Analyze this DeFi yield opportunity:
+        Opportunity: $(JSON.json(opportunity))
+        Market Context: $(JSON.json(market_context))
+        
+        Provide analysis on:
+        1. Risk assessment (1-10 scale)
+        2. Expected yield potential
+        3. Liquidity considerations
+        4. Smart contract risks
+        5. Recommended allocation (0-100%)
+        
+        Format your response as JSON.
+        """
+        
+        result = llm_chat(provider, prompt, get(params, "config", Dict()))
+        result
+    end,
+
+    "llm.assess_portfolio_risk" => (params) -> begin
+        provider = get(params, "provider", "echo")
+        portfolio = get(params, "portfolio", [])
+        risk_metrics = get(params, "risk_metrics", Dict())
+        
+        prompt = """
+        Assess the risk of this DeFi portfolio:
+        Portfolio: $(JSON.json(portfolio))
+        Risk Metrics: $(JSON.json(risk_metrics))
+        
+        Analyze:
+        1. Overall portfolio risk (1-10 scale)
+        2. Specific risk factors (impermanent loss, volatility, etc.)
+        3. Concentration risks
+        4. Cross-chain risks
+        5. Recommended risk mitigation strategies
+        
+        Format your response as JSON.
+        """
+        
+        result = llm_chat(provider, prompt, get(params, "config", Dict()))
+        result
+    end,
+
+    "llm.optimize_allocation" => (params) -> begin
+        provider = get(params, "provider", "echo")
+        opportunities = get(params, "opportunities", [])
+        constraints = get(params, "constraints", Dict())
+        
+        prompt = """
+        Optimize portfolio allocation for these DeFi opportunities:
+        Opportunities: $(JSON.json(opportunities))
+        Constraints: $(JSON.json(constraints))
+        
+        Create an optimal allocation that:
+        1. Maximizes expected yield
+        2. Manages risk within constraints
+        3. Diversifies across chains and protocols
+        4. Considers liquidity and execution costs
+        
+        Return allocation as JSON with opportunity IDs and percentages.
+        """
+        
+        result = llm_chat(provider, prompt, get(params, "config", Dict()))
+        result
+    end,
+
+    "llm.discover_opportunities" => (params) -> begin
+        provider = get(params, "provider", "echo")
+        chain = get(params, "chain", "unknown")
+        market_data = get(params, "market_data", Dict())
+
+        prompt = """
+        Discover DeFi yield opportunities on the given chain:
+        Chain: $(chain)
+        Market Data: $(JSON.json(market_data))
+
+        Discover opportunities with:
+        1. High APY
+        2. High TVL
+        3. Low risk
+
+        Return a list of opportunities as a JSON array.
+        """
+
+        result = llm_chat(provider, prompt, get(params, "config", Dict()))
+        result
     end
 )
 

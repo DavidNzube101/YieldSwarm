@@ -1,425 +1,914 @@
 NODE Server:  
 
-[skipp@archlinux MCDYOS]$ 
-[skipp@archlinux MCDYOS]$ pnpm build
-
-> yield-swarm@1.0.0 build /home/skipp/Documents/projects/MCDYOS
-> tsc && cp -r src/yieldswarm-ui dist/src/yieldswarm-ui
-
-[skipp@archlinux MCDYOS]$ pnpm start:api
-
-> yield-swarm@1.0.0 start:api /home/skipp/Documents/projects/MCDYOS
-> node dist/backend/api.js
-
-[2025-08-01T20:27:18.604Z] [INFO] [SwarmCoordinator] Initializing Swarm Coordinator...
-[2025-08-01T20:27:18.700Z] [INFO] [API] API server listening on port 3000
-[2025-08-01T20:27:18.704Z] [SUCCESS] [SwarmCoordinator] Swarm Coordinator initialized and connected to Julia backend.
-[2025-08-01T20:27:18.705Z] [INFO] [SwarmCoordinator] Subscribing to Julia events...
-[2025-08-01T20:27:32.818Z] [INFO] [SwarmCoordinator] Listing agents...
-[2025-08-01T20:27:32.821Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.list_agents",
-  "params": {},
-  "id": "6a60bc97-f51d-4351-a865-a5dc5bd329fe"
 }
-[2025-08-01T20:27:32.824Z] [INFO] [SwarmCoordinator] Listing swarms...
-[2025-08-01T20:27:32.825Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "swarms.list_swarms",
-  "params": {},
-  "id": "f49f9282-d0fb-4c5e-90ee-47be658f18e7"
-}
-[2025-08-01T20:27:32.831Z] [INFO] [SwarmCoordinator] Fetching available algorithms from Julia...
-[2025-08-01T20:27:32.832Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "portfolio.get_available_algorithms",
-  "params": {},
-  "id": "b54c439a-05b6-4d9f-b2ae-2067cfaa151b"
-}
-[2025-08-01T20:27:33.762Z] [SUCCESS] [SwarmCoordinator] Found 0 agents.
-[2025-08-01T20:27:33.932Z] [SUCCESS] [SwarmCoordinator] Found 0 swarms.
-[2025-08-01T20:27:34.297Z] [SUCCESS] [SwarmCoordinator] Found 3 available algorithms.
-[2025-08-01T20:27:45.209Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
-[2025-08-01T20:28:13.636Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
-[2025-08-01T20:28:20.936Z] [INFO] [API] Received request to create agent: DiscoveryAgentBob, type: discovery, chain: solana
-[2025-08-01T20:28:20.937Z] [INFO] [SwarmCoordinator] Creating agent: DiscoveryAgentBob (discovery) on chain: solana
-[2025-08-01T20:28:20.937Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.create_agent",
-  "params": [
-    "DiscoveryAgentBob",
-    "discovery",
-    "solana",
-    {}
-  ],
-  "id": "5b90e30a-c602-4c77-8383-047168cf465c"
-}
-[2025-08-01T20:28:22.262Z] [INFO] [SwarmCoordinator] Julia Event: agent_created - Raw Data: {"name":"DiscoveryAgentBob","id":"d215e903-d3a4-4955-a64b-1d2a4ce26429","chain":"solana","type":"discovery"}
-[2025-08-01T20:28:22.957Z] [SUCCESS] [SwarmCoordinator] Agent DiscoveryAgentBob created with ID: d215e903-d3a4-4955-a64b-1d2a4ce26429
-[2025-08-01T20:28:22.958Z] [INFO] [DiscoveryAgent-solana] Starting Discovery Agent for solana
-[2025-08-01T20:28:22.959Z] [INFO] [RealDEXIntegrations-solana] Initializing real DEX integrations for solana
-[2025-08-01T20:28:22.959Z] [INFO] [RealDEXIntegrations-solana] Found 2 enabled DEXes: raydium, orca
-[2025-08-01T20:28:22.960Z] [WARN] [RealDEXIntegrations-solana] No enabled DEX with a subgraph found for solana, skipping connectivity test.
-[2025-08-01T20:28:22.960Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations initialized for solana
-[2025-08-01T20:28:22.960Z] [INFO] [DiscoveryAgent-solana] Delaying initial scan for 5 seconds to allow other agents to initialize...
-[2025-08-01T20:28:27.962Z] [INFO] [RealDEXIntegrations-solana] [Config] Using data mode from global config: mock
-[2025-08-01T20:28:27.963Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.963Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-0-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-0-raydium","poolAddress":"","token0":"tokenA-0","token1":"tokenB-0","token0Symbol":"TKA0","token1Symbol":"TKB0","apy":4.625876550014429,"tvl":9997329.366096936,"volume24h":506809.98879340745,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.965Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-0-raydium
-[2025-08-01T20:28:27.965Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.965Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-1-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-1-raydium","poolAddress":"","token0":"tokenA-1","token1":"tokenB-1","token0Symbol":"TKA1","token1Symbol":"TKB1","apy":138.2568696341775,"tvl":483019.8830592369,"volume24h":731844.5698940995,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.965Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-1-raydium
-[2025-08-01T20:28:27.965Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-2-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-2-raydium","poolAddress":"","token0":"tokenA-2","token1":"tokenB-2","token0Symbol":"TKA2","token1Symbol":"TKB2","apy":16.8162648472658,"tvl":4575665.901154525,"volume24h":843239.5577689603,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-2-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-3-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-3-raydium","poolAddress":"","token0":"tokenA-3","token1":"tokenB-3","token0Symbol":"TKA3","token1Symbol":"TKB3","apy":9.265797786527102,"tvl":6903582.896458917,"volume24h":701010.4451629084,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-3-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-4-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-4-raydium","poolAddress":"","token0":"tokenA-4","token1":"tokenB-4","token0Symbol":"TKA4","token1Symbol":"TKB4","apy":161.45999103472752,"tvl":449690.85744244297,"volume24h":795694.0472444468,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-4-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-5-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-5-raydium","poolAddress":"","token0":"tokenA-5","token1":"tokenB-5","token0Symbol":"TKA5","token1Symbol":"TKB5","apy":5.500504498280645,"tvl":2250263.661457067,"volume24h":135644.7714209542,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-5-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-6-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-6-raydium","poolAddress":"","token0":"tokenA-6","token1":"tokenB-6","token0Symbol":"TKA6","token1Symbol":"TKB6","apy":10.61362595741094,"tvl":750483.3120877552,"volume24h":87291.49766332422,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-6-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-7-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-7-raydium","poolAddress":"","token0":"tokenA-7","token1":"tokenB-7","token0Symbol":"TKA7","token1Symbol":"TKB7","apy":13.194746493405956,"tvl":4066690.7162374035,"volume24h":588043.3212913977,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.966Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-7-raydium
-[2025-08-01T20:28:27.966Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.966Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-8-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-8-raydium","poolAddress":"","token0":"tokenA-8","token1":"tokenB-8","token0Symbol":"TKA8","token1Symbol":"TKB8","apy":18.634682837842725,"tvl":2469742.0078288624,"volume24h":504360.0987089066,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.967Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-8-raydium
-[2025-08-01T20:28:27.967Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:28:27.967Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-9-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-9-raydium","poolAddress":"","token0":"tokenA-9","token1":"tokenB-9","token0Symbol":"TKA9","token1Symbol":"TKB9","apy":11.207171205641801,"tvl":7467879.0617540525,"volume24h":917192.3198696475,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:28:27.967Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-9-raydium
-[2025-08-01T20:28:27.967Z] [INFO] [DiscoveryAgent-solana] Found 10 yield opportunities on solana
-[2025-08-01T20:28:27.967Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana started successfully
-[2025-08-01T20:28:27.984Z] [INFO] [SwarmCoordinator] Listing agents...
-[2025-08-01T20:28:27.985Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.list_agents",
-  "params": {},
-  "id": "547594b3-1105-41c1-b835-2ff91779c2a6"
-}
-[2025-08-01T20:28:28.206Z] [SUCCESS] [SwarmCoordinator] Found 1 agents.
-[2025-08-01T20:28:38.168Z] [INFO] [API] Received request to create agent: AnalysisAgentLisa, type: analysis, chain: solana
-[2025-08-01T20:28:38.168Z] [INFO] [SwarmCoordinator] Creating agent: AnalysisAgentLisa (analysis) on chain: solana
-[2025-08-01T20:28:38.168Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.create_agent",
-  "params": [
-    "AnalysisAgentLisa",
-    "analysis",
-    "solana",
-    {}
-  ],
-  "id": "d853b6ce-fad6-45d3-9544-229f06fa1a56"
-}
-[2025-08-01T20:28:38.170Z] [INFO] [SwarmCoordinator] Julia Event: agent_created - Raw Data: {"name":"AnalysisAgentLisa","id":"26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0","chain":"solana","type":"analysis"}
-[2025-08-01T20:28:38.171Z] [SUCCESS] [SwarmCoordinator] Agent AnalysisAgentLisa created with ID: 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0
-[2025-08-01T20:28:38.171Z] [INFO] [AgentCommunication] Registered message handler for agent: analysis-agent
-[2025-08-01T20:28:38.171Z] [INFO] [AnalysisAgent] Starting Analysis Agent
-[2025-08-01T20:28:38.171Z] [INFO] [YieldCalculator] Initializing Yield Calculator with Julia backend
-[2025-08-01T20:28:38.172Z] [SUCCESS] [YieldCalculator] Yield Calculator initialized successfully
-[2025-08-01T20:28:38.172Z] [SUCCESS] [AnalysisAgent] Analysis Agent started successfully
-[2025-08-01T20:28:38.184Z] [INFO] [SwarmCoordinator] Listing agents...
-[2025-08-01T20:28:38.184Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.list_agents",
-  "params": {},
-  "id": "2ce41c2b-5db1-431b-8409-bd88b3421f9e"
-}
-[2025-08-01T20:28:38.185Z] [SUCCESS] [SwarmCoordinator] Found 2 agents.
-[2025-08-01T20:28:46.689Z] [INFO] [API] Received request to create agent: RiskAgentTom, type: risk, chain: solana
-[2025-08-01T20:28:46.689Z] [INFO] [SwarmCoordinator] Creating agent: RiskAgentTom (risk) on chain: solana
-[2025-08-01T20:28:46.689Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.create_agent",
-  "params": [
-    "RiskAgentTom",
-    "risk",
-    "solana",
-    {}
-  ],
-  "id": "f338ab66-d937-474e-834f-545e7c81a1bc"
-}
-[2025-08-01T20:28:46.692Z] [INFO] [SwarmCoordinator] Julia Event: agent_created - Raw Data: {"name":"RiskAgentTom","id":"b523089e-e1e6-4585-b4c7-88215884805a","chain":"solana","type":"risk"}
-[2025-08-01T20:28:46.694Z] [SUCCESS] [SwarmCoordinator] Agent RiskAgentTom created with ID: b523089e-e1e6-4585-b4c7-88215884805a
-[2025-08-01T20:28:46.694Z] [INFO] [AgentCommunication] Registered message handler for agent: risk-agent
-[2025-08-01T20:28:46.694Z] [INFO] [RiskAgent] Starting Risk Management Agent
-[2025-08-01T20:28:46.694Z] [SUCCESS] [RiskAgent] Risk Management Agent started successfully
-[2025-08-01T20:28:46.705Z] [INFO] [SwarmCoordinator] Listing agents...
-[2025-08-01T20:28:46.706Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.list_agents",
-  "params": {},
-  "id": "2017cc47-c53d-4fa5-bf7b-cdf8db212350"
-}
-[2025-08-01T20:28:46.707Z] [SUCCESS] [SwarmCoordinator] Found 3 agents.
-[2025-08-01T20:28:58.490Z] [INFO] [SwarmCoordinator] Creating swarm: SwarmHQ...
-[2025-08-01T20:28:58.490Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "swarms.create_swarm",
-  "params": {
-    "name": "SwarmHQ",
-    "algorithm": {
-      "type": "PortfolioOptimization",
-      "params": {}
-    },
-    "config": {}
-  },
-  "id": "3f389183-5e7a-453c-b9cc-cc78f7aeb7ca"
-}
-[2025-08-01T20:29:00.241Z] [INFO] [SwarmCoordinator] Julia Event: swarm_created - Raw Data: {"name":"SwarmHQ","algorithm":{"params":{},"type":"PortfolioOptimization"},"id":"847886f7-5e3a-40ab-bbb9-8ade96b5b534"}
-[2025-08-01T20:29:00.459Z] [SUCCESS] [SwarmCoordinator] Swarm SwarmHQ created with ID: 847886f7-5e3a-40ab-bbb9-8ade96b5b534
-[2025-08-01T20:29:00.459Z] [INFO] [SwarmCoordinator] Adding agent 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0 to swarm 847886f7-5e3a-40ab-bbb9-8ade96b5b534...
-[2025-08-01T20:29:00.460Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "swarms.add_agent",
-  "params": {
-    "swarm_id": "847886f7-5e3a-40ab-bbb9-8ade96b5b534",
-    "agent_id": "26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0"
-  },
-  "id": "bdd25440-b2cb-4bf9-9993-fb1f4cdaf542"
-}
-[2025-08-01T20:29:00.797Z] [SUCCESS] [SwarmCoordinator] Agent 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0 added to swarm 847886f7-5e3a-40ab-bbb9-8ade96b5b534.
-[2025-08-01T20:29:00.811Z] [INFO] [SwarmCoordinator] Listing swarms...
-[2025-08-01T20:29:00.811Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "swarms.list_swarms",
-  "params": {},
-  "id": "e690d241-8b5d-4c45-b67c-63aff26194b5"
-}
-[2025-08-01T20:29:00.863Z] [SUCCESS] [SwarmCoordinator] Found 1 swarms.
-[2025-08-01T20:29:05.042Z] [INFO] [SwarmCoordinator] Starting agent d215e903-d3a4-4955-a64b-1d2a4ce26429...
-[2025-08-01T20:29:05.042Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:39.576Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"DiscoveryAgent","id":"3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa","type":"discovery"}
+[2025-08-05T19:16:39.577Z] [SUCCESS] [SwarmCoordinator] Agent 3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa started.
+[2025-08-05T19:16:40.469Z] [INFO] [SwarmCoordinator] Starting agent 9e4ec970-9748-4d04-858a-519884fd7868...
+[2025-08-05T19:16:40.470Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
   "command": "agents.start_agent",
   "params": {
-    "id": "d215e903-d3a4-4955-a64b-1d2a4ce26429"
+    "id": "9e4ec970-9748-4d04-858a-519884fd7868"
   },
-  "id": "49720955-8069-462c-a856-a9f8f3640fc7"
+  "id": "43bb1296-9826-4173-b961-75526a631572"
 }
-[2025-08-01T20:29:05.074Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"DiscoveryAgentBob","id":"d215e903-d3a4-4955-a64b-1d2a4ce26429","type":"discovery"}
-[2025-08-01T20:29:05.075Z] [SUCCESS] [SwarmCoordinator] Agent d215e903-d3a4-4955-a64b-1d2a4ce26429 started.
-[2025-08-01T20:29:05.731Z] [INFO] [SwarmCoordinator] Starting agent 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0...
-[2025-08-01T20:29:05.732Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:40.471Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"RiskAgent","id":"9e4ec970-9748-4d04-858a-519884fd7868","type":"risk"}
+[2025-08-05T19:16:40.471Z] [SUCCESS] [SwarmCoordinator] Agent 9e4ec970-9748-4d04-858a-519884fd7868 started.
+[2025-08-05T19:16:41.407Z] [INFO] [SwarmCoordinator] Starting agent 86963f53-d460-4fb4-ae5c-808112166962...
+[2025-08-05T19:16:41.407Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
   "command": "agents.start_agent",
   "params": {
-    "id": "26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0"
+    "id": "86963f53-d460-4fb4-ae5c-808112166962"
   },
-  "id": "7d9fdb85-2882-4951-88fa-755db3cc24da"
+  "id": "df989d9f-c61b-4524-86ca-445f6ff04591"
 }
-[2025-08-01T20:29:05.734Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"AnalysisAgentLisa","id":"26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0","type":"analysis"}
-[2025-08-01T20:29:05.735Z] [SUCCESS] [SwarmCoordinator] Agent 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0 started.
-[2025-08-01T20:29:07.195Z] [INFO] [SwarmCoordinator] Starting agent b523089e-e1e6-4585-b4c7-88215884805a...
-[2025-08-01T20:29:07.196Z] [INFO] [CustomJuliaBridge] Sending request: {
-  "jsonrpc": "2.0",
-  "command": "agents.start_agent",
-  "params": {
-    "id": "b523089e-e1e6-4585-b4c7-88215884805a"
-  },
-  "id": "e8b8e66c-d5be-4e50-af9f-ee9557b91d3b"
-}
-[2025-08-01T20:29:07.197Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"RiskAgentTom","id":"b523089e-e1e6-4585-b4c7-88215884805a","type":"risk"}
-[2025-08-01T20:29:07.197Z] [SUCCESS] [SwarmCoordinator] Agent b523089e-e1e6-4585-b4c7-88215884805a started.
-[2025-08-01T20:29:07.372Z] [INFO] [SwarmCoordinator] Starting swarm 847886f7-5e3a-40ab-bbb9-8ade96b5b534...
-[2025-08-01T20:29:07.373Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:41.410Z] [INFO] [SwarmCoordinator] Julia Event: agent_started - Raw Data: {"name":"AnalysisAgent","id":"86963f53-d460-4fb4-ae5c-808112166962","type":"analysis"}
+[2025-08-05T19:16:41.410Z] [SUCCESS] [SwarmCoordinator] Agent 86963f53-d460-4fb4-ae5c-808112166962 started.
+[2025-08-05T19:16:43.305Z] [INFO] [SwarmCoordinator] Starting swarm 02f9e872-d2f5-44c6-80f9-7cec5d10834a...
+[2025-08-05T19:16:43.305Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
   "command": "swarms.start_swarm",
   "params": {
-    "id": "847886f7-5e3a-40ab-bbb9-8ade96b5b534"
+    "id": "02f9e872-d2f5-44c6-80f9-7cec5d10834a"
   },
-  "id": "61426676-8350-475b-8752-af31f102c879"
+  "id": "40506d73-e810-4e99-b240-216b25c9946c"
 }
-[2025-08-01T20:29:07.561Z] [INFO] [SwarmCoordinator] Julia Event: swarm_started - Raw Data: {"name":"SwarmHQ","status":"running","id":"847886f7-5e3a-40ab-bbb9-8ade96b5b534"}
-[2025-08-01T20:29:07.562Z] [SUCCESS] [SwarmCoordinator] Swarm 847886f7-5e3a-40ab-bbb9-8ade96b5b534 started.
-[2025-08-01T20:29:09.437Z] [INFO] [SwarmCoordinator] Listing agents...
-[2025-08-01T20:29:09.437Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:43.582Z] [INFO] [SwarmCoordinator] Julia Event: swarm_started - Raw Data: {"name":"Swarm2","status":"running","id":"02f9e872-d2f5-44c6-80f9-7cec5d10834a"}
+[2025-08-05T19:16:43.582Z] [SUCCESS] [SwarmCoordinator] Swarm 02f9e872-d2f5-44c6-80f9-7cec5d10834a started.
+[2025-08-05T19:16:45.237Z] [INFO] [SwarmCoordinator] Listing agents...
+[2025-08-05T19:16:45.237Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
   "command": "agents.list_agents",
   "params": {},
-  "id": "89f0b463-d32b-4a34-95de-a0f8a6db65ca"
+  "id": "3a5d7dea-5220-4cf3-b5b8-a6920de495c7"
 }
-[2025-08-01T20:29:09.438Z] [SUCCESS] [SwarmCoordinator] Found 3 agents.
-[2025-08-01T20:29:10.832Z] [INFO] [SwarmCoordinator] Listing swarms...
-[2025-08-01T20:29:10.832Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:45.238Z] [SUCCESS] [SwarmCoordinator] Found 3 agents.
+[2025-08-05T19:16:46.747Z] [INFO] [SwarmCoordinator] Listing swarms...
+[2025-08-05T19:16:46.747Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
   "command": "swarms.list_swarms",
   "params": {},
-  "id": "038ef736-15d3-4fee-879e-53e7a31368f9"
+  "id": "9cd62ef6-bdc2-48cd-be66-f040c679d476"
 }
-[2025-08-01T20:29:10.833Z] [SUCCESS] [SwarmCoordinator] Found 1 swarms.
-[2025-08-01T20:29:12.581Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
-[2025-08-01T20:29:12.582Z] [INFO] [API] Reconfiguring Discovery Agent for solana...
-[2025-08-01T20:29:12.582Z] [INFO] [DiscoveryAgent-solana] Reconfiguring Discovery Agent for solana
-[2025-08-01T20:29:12.582Z] [INFO] [DiscoveryAgent-solana] Shutting down Discovery Agent for solana
-[2025-08-01T20:29:12.583Z] [INFO] [RealDEXIntegrations-solana] Shutting down real DEX integrations for solana
-[2025-08-01T20:29:12.583Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations shutdown completed for solana
-[2025-08-01T20:29:12.583Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana shutdown completed
-[2025-08-01T20:29:12.584Z] [INFO] [DiscoveryAgent-solana] Starting Discovery Agent for solana
-[2025-08-01T20:29:12.584Z] [INFO] [RealDEXIntegrations-solana] Initializing real DEX integrations for solana
-[2025-08-01T20:29:12.584Z] [INFO] [RealDEXIntegrations-solana] Found 2 enabled DEXes: raydium, orca
-[2025-08-01T20:29:12.584Z] [WARN] [RealDEXIntegrations-solana] No enabled DEX with a subgraph found for solana, skipping connectivity test.
-[2025-08-01T20:29:12.584Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations initialized for solana
-[2025-08-01T20:29:12.584Z] [INFO] [DiscoveryAgent-solana] Delaying initial scan for 5 seconds to allow other agents to initialize...
-[2025-08-01T20:29:17.586Z] [INFO] [RealDEXIntegrations-solana] [Config] Using data mode from global config: mock
-[2025-08-01T20:29:17.587Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.588Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-0-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-0-raydium","poolAddress":"","token0":"tokenA-0","token1":"tokenB-0","token0Symbol":"TKA0","token1Symbol":"TKB0","apy":8.010406900901506,"tvl":7990470.562218078,"volume24h":701445.7044716935,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.589Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
-[2025-08-01T20:29:17.590Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-0-raydium
-[2025-08-01T20:29:17.590Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.590Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-1-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-1-raydium","poolAddress":"","token0":"tokenA-1","token1":"tokenB-1","token0Symbol":"TKA1","token1Symbol":"TKB1","apy":8.751597029390643,"tvl":7062275.16676841,"volume24h":677328.0698107367,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.591Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-1-raydium
-[2025-08-01T20:29:17.591Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.591Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-2-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-2-raydium","poolAddress":"","token0":"tokenA-2","token1":"tokenB-2","token0Symbol":"TKA2","token1Symbol":"TKB2","apy":36.66226478858914,"tvl":2437876.6481617074,"volume24h":979485.799417235,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.592Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-2-raydium
-[2025-08-01T20:29:17.592Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.592Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-3-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-3-raydium","poolAddress":"","token0":"tokenA-3","token1":"tokenB-3","token0Symbol":"TKA3","token1Symbol":"TKB3","apy":0.4262624185566851,"tvl":8112436.58642545,"volume24h":37896.18454484878,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.593Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-3-raydium
-[2025-08-01T20:29:17.593Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.593Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-4-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-4-raydium","poolAddress":"","token0":"tokenA-4","token1":"tokenB-4","token0Symbol":"TKA4","token1Symbol":"TKB4","apy":15.952146664623221,"tvl":2605021.6177484063,"volume24h":455404.788063963,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.593Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-4-raydium
-[2025-08-01T20:29:17.594Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.594Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-5-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-5-raydium","poolAddress":"","token0":"tokenA-5","token1":"tokenB-5","token0Symbol":"TKA5","token1Symbol":"TKB5","apy":1.5535108598315965,"tvl":8055955.134890918,"volume24h":137150.83603692224,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.594Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-5-raydium
-[2025-08-01T20:29:17.594Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.595Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-6-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-6-raydium","poolAddress":"","token0":"tokenA-6","token1":"tokenB-6","token0Symbol":"TKA6","token1Symbol":"TKB6","apy":4.4795202225370705,"tvl":9494271.418844732,"volume24h":466079.7897969392,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.595Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-6-raydium
-[2025-08-01T20:29:17.595Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.595Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-7-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-7-raydium","poolAddress":"","token0":"tokenA-7","token1":"tokenB-7","token0Symbol":"TKA7","token1Symbol":"TKB7","apy":99.37530344608861,"tvl":869868.481971593,"volume24h":947325.4175793482,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.596Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-7-raydium
-[2025-08-01T20:29:17.596Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.596Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-8-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-8-raydium","poolAddress":"","token0":"tokenA-8","token1":"tokenB-8","token0Symbol":"TKA8","token1Symbol":"TKB8","apy":44.94807294616343,"tvl":1609387.1647191637,"volume24h":792754.5389415463,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.596Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-8-raydium
-[2025-08-01T20:29:17.597Z] [INFO] [API] API: Forwarding YIELD_OPPORTUNITY to WebSocket clients
-[2025-08-01T20:29:17.597Z] [INFO] [API] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-9-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-9-raydium","poolAddress":"","token0":"tokenA-9","token1":"tokenB-9","token0Symbol":"TKA9","token1Symbol":"TKB9","apy":13.426860779329328,"tvl":6552052.8167196,"volume24h":964093.1615222646,"fee":0.0025,"riskScore":0.6}
-[2025-08-01T20:29:17.597Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-9-raydium
-[2025-08-01T20:29:17.597Z] [INFO] [DiscoveryAgent-solana] Found 10 yield opportunities on solana
-[2025-08-01T20:29:17.598Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana started successfully
-[2025-08-01T20:29:17.599Z] [INFO] [DiscoveryAgent-solana] Discovery Agent for solana reconfigured and restarted.
-[2025-08-01T20:29:22.591Z] [INFO] [AnalysisAgent] Performing portfolio optimization...
-[2025-08-01T20:29:22.594Z] [INFO] [YieldCalculator] [DEBUG] YieldCalculator sending optimization data to Julia: {"opportunities":[{"id":"solana-raydium-mock-pool-0-raydium","expected_yield":0.08010406900901507,"risk_score":0.6,"chain":"solana","tvl":7990470.562218078,"volume24h":701445.7044716935},{"id":"solana-raydium-mock-pool-1-raydium","expected_yield":0.08751597029390643,"risk_score":0.6,"chain":"solana","tvl":7062275.16676841,"volume24h":677328.0698107367},{"id":"solana-raydium-mock-pool-2-raydium","expected_yield":0.3666226478858914,"risk_score":0.6,"chain":"solana","tvl":2437876.6481617074,"volume24h":979485.799417235},{"id":"solana-raydium-mock-pool-3-raydium","expected_yield":0.004262624185566851,"risk_score":0.6,"chain":"solana","tvl":8112436.58642545,"volume24h":37896.18454484878},{"id":"solana-raydium-mock-pool-4-raydium","expected_yield":0.1595214666462322,"risk_score":0.6,"chain":"solana","tvl":2605021.6177484063,"volume24h":455404.788063963},{"id":"solana-raydium-mock-pool-5-raydium","expected_yield":0.015535108598315965,"risk_score":0.6,"chain":"solana","tvl":8055955.134890918,"volume24h":137150.83603692224},{"id":"solana-raydium-mock-pool-6-raydium","expected_yield":0.04479520222537071,"risk_score":0.6,"chain":"solana","tvl":9494271.418844732,"volume24h":466079.7897969392},{"id":"solana-raydium-mock-pool-7-raydium","expected_yield":0.993753034460886,"risk_score":0.6,"chain":"solana","tvl":869868.481971593,"volume24h":947325.4175793482},{"id":"solana-raydium-mock-pool-8-raydium","expected_yield":0.4494807294616343,"risk_score":0.6,"chain":"solana","tvl":1609387.1647191637,"volume24h":792754.5389415463},{"id":"solana-raydium-mock-pool-9-raydium","expected_yield":0.13426860779329328,"risk_score":0.6,"chain":"solana","tvl":6552052.8167196,"volume24h":964093.1615222646}],"constraints":{"risk_tolerance":0.7,"max_allocation_per_opportunity":0.2,"min_allocation_per_opportunity":0.05,"total_allocation":1}}
-[2025-08-01T20:29:22.594Z] [INFO] [CustomJuliaBridge] Sending request: {
+[2025-08-05T19:16:46.748Z] [SUCCESS] [SwarmCoordinator] Found 1 swarms.
+[2025-08-05T19:17:02.325Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
+[2025-08-05T19:17:02.325Z] [INFO] [API] Reconfiguring Discovery Agent for solana...
+[2025-08-05T19:17:02.325Z] [INFO] [DiscoveryAgent-solana] Reconfiguring Discovery Agent for solana
+[2025-08-05T19:17:02.325Z] [INFO] [DiscoveryAgent-solana] Shutting down Discovery Agent for solana
+[2025-08-05T19:17:02.326Z] [INFO] [RealDEXIntegrations-solana] Shutting down real DEX integrations for solana
+[2025-08-05T19:17:02.326Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations shutdown completed for solana
+[2025-08-05T19:17:02.326Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana shutdown completed
+[2025-08-05T19:17:02.331Z] [INFO] [DiscoveryAgent-solana] Starting Discovery Agent for solana
+[2025-08-05T19:17:02.331Z] [INFO] [RealDEXIntegrations-solana] Initializing real DEX integrations for solana
+[2025-08-05T19:17:02.332Z] [INFO] [RealDEXIntegrations-solana] Found 2 enabled DEXes: raydium, orca
+[2025-08-05T19:17:02.332Z] [WARN] [RealDEXIntegrations-solana] No enabled DEX with a subgraph found for solana, skipping connectivity test.
+[2025-08-05T19:17:02.332Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations initialized for solana
+[2025-08-05T19:17:02.332Z] [INFO] [DiscoveryAgent-solana] Delaying initial scan for 5 seconds to allow other agents to initialize...
+[2025-08-05T19:17:02.333Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
+[2025-08-05T19:17:02.333Z] [INFO] [API] Reconfiguring Discovery Agent for solana...
+[2025-08-05T19:17:02.333Z] [INFO] [DiscoveryAgent-solana] Reconfiguring Discovery Agent for solana
+[2025-08-05T19:17:02.333Z] [INFO] [DiscoveryAgent-solana] Shutting down Discovery Agent for solana
+[2025-08-05T19:17:02.334Z] [INFO] [RealDEXIntegrations-solana] Shutting down real DEX integrations for solana
+[2025-08-05T19:17:02.334Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations shutdown completed for solana
+[2025-08-05T19:17:02.334Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana shutdown completed
+[2025-08-05T19:17:02.334Z] [INFO] [DiscoveryAgent-solana] Starting Discovery Agent for solana
+[2025-08-05T19:17:02.334Z] [INFO] [RealDEXIntegrations-solana] Initializing real DEX integrations for solana
+[2025-08-05T19:17:02.334Z] [INFO] [RealDEXIntegrations-solana] Found 2 enabled DEXes: raydium, orca
+[2025-08-05T19:17:02.335Z] [WARN] [RealDEXIntegrations-solana] No enabled DEX with a subgraph found for solana, skipping connectivity test.
+[2025-08-05T19:17:02.335Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations initialized for solana
+[2025-08-05T19:17:02.335Z] [INFO] [DiscoveryAgent-solana] Delaying initial scan for 5 seconds to allow other agents to initialize...
+[2025-08-05T19:17:02.338Z] [INFO] [API] Updated global configuration: Data Mode = mock, Active Chains = solana
+[2025-08-05T19:17:02.338Z] [INFO] [API] Reconfiguring Discovery Agent for solana...
+[2025-08-05T19:17:02.338Z] [INFO] [DiscoveryAgent-solana] Reconfiguring Discovery Agent for solana
+[2025-08-05T19:17:02.338Z] [INFO] [DiscoveryAgent-solana] Shutting down Discovery Agent for solana
+[2025-08-05T19:17:02.338Z] [INFO] [RealDEXIntegrations-solana] Shutting down real DEX integrations for solana
+[2025-08-05T19:17:02.338Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations shutdown completed for solana
+[2025-08-05T19:17:02.338Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana shutdown completed
+[2025-08-05T19:17:02.339Z] [INFO] [DiscoveryAgent-solana] Starting Discovery Agent for solana
+[2025-08-05T19:17:02.339Z] [INFO] [RealDEXIntegrations-solana] Initializing real DEX integrations for solana
+[2025-08-05T19:17:02.339Z] [INFO] [RealDEXIntegrations-solana] Found 2 enabled DEXes: raydium, orca
+[2025-08-05T19:17:02.339Z] [WARN] [RealDEXIntegrations-solana] No enabled DEX with a subgraph found for solana, skipping connectivity test.
+[2025-08-05T19:17:02.339Z] [SUCCESS] [RealDEXIntegrations-solana] Real DEX integrations initialized for solana
+[2025-08-05T19:17:02.339Z] [INFO] [DiscoveryAgent-solana] Delaying initial scan for 5 seconds to allow other agents to initialize...
+[2025-08-05T19:17:07.336Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based discovery on solana...
+[2025-08-05T19:17:07.336Z] [INFO] [CustomJuliaBridge] Sending request: {
   "jsonrpc": "2.0",
-  "command": "portfolio.optimize",
+  "command": "llm.discover_opportunities",
+  "params": {
+    "chain": "solana",
+    "market_data": {
+      "chain": "solana",
+      "timestamp": 1754421427336,
+      "totalOpportunities": 0,
+      "marketConditions": "stable",
+      "riskFreeRate": 0.05
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "ec9ddb3b-fdfd-49d3-ac23-45a19a3d19dc"
+}
+[2025-08-05T19:17:07.336Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based discovery on solana...
+[2025-08-05T19:17:07.337Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.discover_opportunities",
+  "params": {
+    "chain": "solana",
+    "market_data": {
+      "chain": "solana",
+      "timestamp": 1754421427337,
+      "totalOpportunities": 0,
+      "marketConditions": "stable",
+      "riskFreeRate": 0.05
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "3c97347c-6cbc-49d9-8805-352700d13dbe"
+}
+[2025-08-05T19:17:07.339Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based discovery on solana...
+[2025-08-05T19:17:07.339Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.discover_opportunities",
+  "params": {
+    "chain": "solana",
+    "market_data": {
+      "chain": "solana",
+      "timestamp": 1754421427339,
+      "totalOpportunities": 0,
+      "marketConditions": "stable",
+      "riskFreeRate": 0.05
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "59762e2f-b6ab-40f2-89c8-ae6f4a9372dd"
+}
+[2025-08-05T19:17:07.614Z] [INFO] [DiscoveryAgent-solana] Successfully received LLM-discovered opportunities
+[2025-08-05T19:17:07.615Z] [INFO] [RealDEXIntegrations-solana] [Config] Using data mode from global config: mock
+[2025-08-05T19:17:07.615Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based opportunity filtering...
+[2025-08-05T19:17:07.615Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.chat",
+  "params": {
+    "provider": "echo",
+    "prompt": "Analyze these DeFi yield opportunities and select the best ones:\n        \n        Opportunities: [{\"id\":\"solana-raydium-mock-pool-0-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-0-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-0\",\"token1\":\"tokenB-0\",\"token0Symbol\":\"TKA0\",\"token1Symbol\":\"TKB0\",\"apy\":26.475154340449464,\"tvl\":524132.40306061314,\"volume24h\":152071.0823655934,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-1-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-1-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-1\",\"token1\":\"tokenB-1\",\"token0Symbol\":\"TKA1\",\"token1Symbol\":\"TKB1\",\"apy\":10.123601011687825,\"tvl\":7548857.828459264,\"volume24h\":837497.2575263315,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-2-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-2-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-2\",\"token1\":\"tokenB-2\",\"token0Symbol\":\"TKA2\",\"token1Symbol\":\"TKB2\",\"apy\":8.968629767554443,\"tvl\":5568568.22994015,\"volume24h\":547314.2661884842,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-3-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-3-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-3\",\"token1\":\"tokenB-3\",\"token0Symbol\":\"TKA3\",\"token1Symbol\":\"TKB3\",\"apy\":0.9398149429768534,\"tvl\":7466903.616259126,\"volume24h\":76904.19283647377,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-4-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-4-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-4\",\"token1\":\"tokenB-4\",\"token0Symbol\":\"TKA4\",\"token1Symbol\":\"TKB4\",\"apy\":15.763215852019924,\"tvl\":4957369.35350897,\"volume24h\":856373.5142745244,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-5-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-5-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-5\",\"token1\":\"tokenB-5\",\"token0Symbol\":\"TKA5\",\"token1Symbol\":\"TKB5\",\"apy\":1.147160038167542,\"tvl\":5450722.194989217,\"volume24h\":68524.39102733698,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-6-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-6-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-6\",\"token1\":\"tokenB-6\",\"token0Symbol\":\"TKA6\",\"token1Symbol\":\"TKB6\",\"apy\":7.496579927872572,\"tvl\":8672082.740851814,\"volume24h\":712448.8921415877,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-7-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-7-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-7\",\"token1\":\"tokenB-7\",\"token0Symbol\":\"TKA7\",\"token1Symbol\":\"TKB7\",\"apy\":20.805922059850186,\"tvl\":3414478.5955734914,\"volume24h\":778535.6222962058,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-8-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-8-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-8\",\"token1\":\"tokenB-8\",\"token0Symbol\":\"TKA8\",\"token1Symbol\":\"TKB8\",\"apy\":13.335453583684293,\"tvl\":3986506.4163043927,\"volume24h\":582595.8495965682,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-9-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-9-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-9\",\"token1\":\"tokenB-9\",\"token0Symbol\":\"TKA9\",\"token1Symbol\":\"TKB9\",\"apy\":37.95766756151625,\"tvl\":1088311.5649055163,\"volume24h\":452709.7927017765,\"fee\":0.0025,\"riskScore\":0.6}]\n        Market Context: {\"chain\":\"solana\",\"timestamp\":1754421427615,\"totalOpportunities\":0,\"marketConditions\":\"stable\",\"riskFreeRate\":0.05}\n        \n        Select opportunities that:\n        1. Have good risk-adjusted returns\n        2. Have sufficient liquidity\n        3. Are from reputable protocols\n        4. Have reasonable risk scores\n        \n        Return only the IDs of the best opportunities as a JSON array.\n        ",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "6fa47443-05ea-46d5-8e4c-fb9979b34e6f"
+}
+[2025-08-05T19:17:07.616Z] [INFO] [DiscoveryAgent-solana] Successfully received LLM-discovered opportunities
+[2025-08-05T19:17:07.616Z] [INFO] [DiscoveryAgent-solana] Successfully received LLM-discovered opportunities
+[2025-08-05T19:17:07.616Z] [INFO] [RealDEXIntegrations-solana] [Config] Using data mode from global config: mock
+[2025-08-05T19:17:07.616Z] [INFO] [RealDEXIntegrations-solana] [Config] Using data mode from global config: mock
+[2025-08-05T19:17:07.616Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based opportunity filtering...
+[2025-08-05T19:17:07.616Z] [INFO] [DiscoveryAgent-solana] Attempting LLM-based opportunity filtering...
+[2025-08-05T19:17:07.616Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.chat",
+  "params": {
+    "provider": "echo",
+    "prompt": "Analyze these DeFi yield opportunities and select the best ones:\n        \n        Opportunities: [{\"id\":\"solana-raydium-mock-pool-0-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-0-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-0\",\"token1\":\"tokenB-0\",\"token0Symbol\":\"TKA0\",\"token1Symbol\":\"TKB0\",\"apy\":7.657979173291587,\"tvl\":8893922.025300983,\"volume24h\":746405.1467247591,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-1-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-1-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-1\",\"token1\":\"tokenB-1\",\"token0Symbol\":\"TKA1\",\"token1Symbol\":\"TKB1\",\"apy\":5.3191775791205425,\"tvl\":9385299.295973679,\"volume24h\":547091.2174079891,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-2-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-2-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-2\",\"token1\":\"tokenB-2\",\"token0Symbol\":\"TKA2\",\"token1Symbol\":\"TKB2\",\"apy\":11.033010663792087,\"tvl\":3044671.0518461885,\"volume24h\":368130.28145488293,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-3-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-3-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-3\",\"token1\":\"tokenB-3\",\"token0Symbol\":\"TKA3\",\"token1Symbol\":\"TKB3\",\"apy\":24.157906882622797,\"tvl\":2326424.3093259283,\"volume24h\":615907.3077716803,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-4-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-4-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-4\",\"token1\":\"tokenB-4\",\"token0Symbol\":\"TKA4\",\"token1Symbol\":\"TKB4\",\"apy\":1.552923180187059,\"tvl\":9424088.408187162,\"volume24h\":160382.3051091069,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-5-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-5-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-5\",\"token1\":\"tokenB-5\",\"token0Symbol\":\"TKA5\",\"token1Symbol\":\"TKB5\",\"apy\":51.44034772707489,\"tvl\":976225.827136259,\"volume24h\":550327.6274853749,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-6-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-6-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-6\",\"token1\":\"tokenB-6\",\"token0Symbol\":\"TKA6\",\"token1Symbol\":\"TKB6\",\"apy\":7.016774910788946,\"tvl\":7632908.036335011,\"volume24h\":586941.3436242722,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-7-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-7-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-7\",\"token1\":\"tokenB-7\",\"token0Symbol\":\"TKA7\",\"token1Symbol\":\"TKB7\",\"apy\":1.9456701662930251,\"tvl\":7892738.129798756,\"volume24h\":168292.220378223,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-8-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-8-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-8\",\"token1\":\"tokenB-8\",\"token0Symbol\":\"TKA8\",\"token1Symbol\":\"TKB8\",\"apy\":10.238703121595764,\"tvl\":8449034.957793852,\"volume24h\":948023.6777735414,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-9-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-9-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-9\",\"token1\":\"tokenB-9\",\"token0Symbol\":\"TKA9\",\"token1Symbol\":\"TKB9\",\"apy\":20.306565176394532,\"tvl\":3563406.9971825834,\"volume24h\":792992.3993239282,\"fee\":0.0025,\"riskScore\":0.6}]\n        Market Context: {\"chain\":\"solana\",\"timestamp\":1754421427616,\"totalOpportunities\":0,\"marketConditions\":\"stable\",\"riskFreeRate\":0.05}\n        \n        Select opportunities that:\n        1. Have good risk-adjusted returns\n        2. Have sufficient liquidity\n        3. Are from reputable protocols\n        4. Have reasonable risk scores\n        \n        Return only the IDs of the best opportunities as a JSON array.\n        ",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "2744cc52-7d0b-419b-a6dc-78efca067a04"
+}
+[2025-08-05T19:17:07.617Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.chat",
+  "params": {
+    "provider": "echo",
+    "prompt": "Analyze these DeFi yield opportunities and select the best ones:\n        \n        Opportunities: [{\"id\":\"solana-raydium-mock-pool-0-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-0-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-0\",\"token1\":\"tokenB-0\",\"token0Symbol\":\"TKA0\",\"token1Symbol\":\"TKB0\",\"apy\":0.5256027369852407,\"tvl\":8074650.012693404,\"volume24h\":46510.22626706369,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-1-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-1-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-1\",\"token1\":\"tokenB-1\",\"token0Symbol\":\"TKA1\",\"token1Symbol\":\"TKB1\",\"apy\":7.8929408222830775,\"tvl\":8224340.788246289,\"volume24h\":711388.8782895004,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-2-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-2-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-2\",\"token1\":\"tokenB-2\",\"token0Symbol\":\"TKA2\",\"token1Symbol\":\"TKB2\",\"apy\":1.625336258049942,\"tvl\":7183289.320433572,\"volume24h\":127948.06120069712,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-3-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-3-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-3\",\"token1\":\"tokenB-3\",\"token0Symbol\":\"TKA3\",\"token1Symbol\":\"TKB3\",\"apy\":7.61759610479686,\"tvl\":2660854.846384797,\"volume24h\":222129.50699452794,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-4-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-4-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-4\",\"token1\":\"tokenB-4\",\"token0Symbol\":\"TKA4\",\"token1Symbol\":\"TKB4\",\"apy\":33.71945557788562,\"tvl\":1756896.154158185,\"volume24h\":649222.814521589,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-5-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-5-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-5\",\"token1\":\"tokenB-5\",\"token0Symbol\":\"TKA5\",\"token1Symbol\":\"TKB5\",\"apy\":3.5781331635439493,\"tvl\":9552182.547120256,\"volume24h\":374564.17705289536,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-6-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-6-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-6\",\"token1\":\"tokenB-6\",\"token0Symbol\":\"TKA6\",\"token1Symbol\":\"TKB6\",\"apy\":1.3817782992083016,\"tvl\":8541540.437215477,\"volume24h\":129342.63252552913,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-7-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-7-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-7\",\"token1\":\"tokenB-7\",\"token0Symbol\":\"TKA7\",\"token1Symbol\":\"TKB7\",\"apy\":18.411139974936603,\"tvl\":1871509.3487877122,\"volume24h\":377606.8009307728,\"fee\":0.0025,\"riskScore\":0.6},{\"id\":\"solana-raydium-mock-pool-8-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-8-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-8\",\"token1\":\"tokenB-8\",\"token0Symbol\":\"TKA8\",\"token1Symbol\":\"TKB8\",\"apy\":0.02994116445232552,\"tvl\":6931112.996177489,\"volume24h\":2274.2530855474065,\"fee\":0.0025,\"riskScore\":0.7999999999999999},{\"id\":\"solana-raydium-mock-pool-9-raydium\",\"chain\":\"solana\",\"dex\":\"raydium\",\"pool\":\"mock-pool-9-raydium\",\"poolAddress\":\"\",\"token0\":\"tokenA-9\",\"token1\":\"tokenB-9\",\"token0Symbol\":\"TKA9\",\"token1Symbol\":\"TKB9\",\"apy\":13.720893031701417,\"tvl\":5698087.365091373,\"volume24h\":856798.3257173492,\"fee\":0.0025,\"riskScore\":0.6}]\n        Market Context: {\"chain\":\"solana\",\"timestamp\":1754421427616,\"totalOpportunities\":0,\"marketConditions\":\"stable\",\"riskFreeRate\":0.05}\n        \n        Select opportunities that:\n        1. Have good risk-adjusted returns\n        2. Have sufficient liquidity\n        3. Are from reputable protocols\n        4. Have reasonable risk scores\n        \n        Return only the IDs of the best opportunities as a JSON array.\n        ",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "58788282-5f33-4a69-8298-0bac03d829df"
+}
+[2025-08-05T19:17:07.618Z] [INFO] [API] [2025-08-05T19:17:07.618Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.618Z] [INFO] [API] [2025-08-05T19:17:07.618Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-0-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-0-raydium","poolAddress":"","token0":"tokenA-0","token1":"tokenB-0","token0Symbol":"TKA0","token1Symbol":"TKB0","apy":26.475154340449464,"tvl":524132.40306061314,"volume24h":152071.0823655934,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.619Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
+[2025-08-05T19:17:07.619Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-0-raydium
+[2025-08-05T19:17:07.619Z] [INFO] [API] [2025-08-05T19:17:07.619Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.619Z] [INFO] [API] [2025-08-05T19:17:07.619Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-1-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-1-raydium","poolAddress":"","token0":"tokenA-1","token1":"tokenB-1","token0Symbol":"TKA1","token1Symbol":"TKB1","apy":10.123601011687825,"tvl":7548857.828459264,"volume24h":837497.2575263315,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.619Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-1-raydium
+[2025-08-05T19:17:07.619Z] [INFO] [API] [2025-08-05T19:17:07.619Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.619Z] [INFO] [API] [2025-08-05T19:17:07.619Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-2-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-2-raydium","poolAddress":"","token0":"tokenA-2","token1":"tokenB-2","token0Symbol":"TKA2","token1Symbol":"TKB2","apy":8.968629767554443,"tvl":5568568.22994015,"volume24h":547314.2661884842,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.620Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-2-raydium
+[2025-08-05T19:17:07.620Z] [INFO] [API] [2025-08-05T19:17:07.620Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.620Z] [INFO] [API] [2025-08-05T19:17:07.620Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-4-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-4-raydium","poolAddress":"","token0":"tokenA-4","token1":"tokenB-4","token0Symbol":"TKA4","token1Symbol":"TKB4","apy":15.763215852019924,"tvl":4957369.35350897,"volume24h":856373.5142745244,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.621Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-4-raydium
+[2025-08-05T19:17:07.621Z] [INFO] [API] [2025-08-05T19:17:07.621Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.621Z] [INFO] [API] [2025-08-05T19:17:07.621Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-6-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-6-raydium","poolAddress":"","token0":"tokenA-6","token1":"tokenB-6","token0Symbol":"TKA6","token1Symbol":"TKB6","apy":7.496579927872572,"tvl":8672082.740851814,"volume24h":712448.8921415877,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.621Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-6-raydium
+[2025-08-05T19:17:07.621Z] [INFO] [API] [2025-08-05T19:17:07.621Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.621Z] [INFO] [API] [2025-08-05T19:17:07.621Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-7-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-7-raydium","poolAddress":"","token0":"tokenA-7","token1":"tokenB-7","token0Symbol":"TKA7","token1Symbol":"TKB7","apy":20.805922059850186,"tvl":3414478.5955734914,"volume24h":778535.6222962058,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.621Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-7-raydium
+[2025-08-05T19:17:07.622Z] [INFO] [API] [2025-08-05T19:17:07.622Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.622Z] [INFO] [API] [2025-08-05T19:17:07.622Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-8-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-8-raydium","poolAddress":"","token0":"tokenA-8","token1":"tokenB-8","token0Symbol":"TKA8","token1Symbol":"TKB8","apy":13.335453583684293,"tvl":3986506.4163043927,"volume24h":582595.8495965682,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.622Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-8-raydium
+[2025-08-05T19:17:07.623Z] [INFO] [API] [2025-08-05T19:17:07.623Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.623Z] [INFO] [API] [2025-08-05T19:17:07.623Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-9-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-9-raydium","poolAddress":"","token0":"tokenA-9","token1":"tokenB-9","token0Symbol":"TKA9","token1Symbol":"TKB9","apy":37.95766756151625,"tvl":1088311.5649055163,"volume24h":452709.7927017765,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.623Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-9-raydium
+[2025-08-05T19:17:07.623Z] [INFO] [DiscoveryAgent-solana] Found 8 yield opportunities on solana
+[2025-08-05T19:17:07.623Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana started successfully
+[2025-08-05T19:17:07.623Z] [INFO] [DiscoveryAgent-solana] Discovery Agent for solana reconfigured and restarted.
+[2025-08-05T19:17:07.664Z] [INFO] [API] [2025-08-05T19:17:07.664Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.664Z] [INFO] [API] [2025-08-05T19:17:07.664Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-0-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-0-raydium","poolAddress":"","token0":"tokenA-0","token1":"tokenB-0","token0Symbol":"TKA0","token1Symbol":"TKB0","apy":7.657979173291587,"tvl":8893922.025300983,"volume24h":746405.1467247591,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.665Z] [INFO] [API] [2025-08-05T19:17:07.665Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.665Z] [INFO] [API] [2025-08-05T19:17:07.665Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-1-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-1-raydium","poolAddress":"","token0":"tokenA-1","token1":"tokenB-1","token0Symbol":"TKA1","token1Symbol":"TKB1","apy":7.8929408222830775,"tvl":8224340.788246289,"volume24h":711388.8782895004,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.666Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-1-raydium
+[2025-08-05T19:17:07.667Z] [INFO] [API] [2025-08-05T19:17:07.667Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.667Z] [INFO] [API] [2025-08-05T19:17:07.667Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-3-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-3-raydium","poolAddress":"","token0":"tokenA-3","token1":"tokenB-3","token0Symbol":"TKA3","token1Symbol":"TKB3","apy":7.61759610479686,"tvl":2660854.846384797,"volume24h":222129.50699452794,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.668Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-3-raydium
+[2025-08-05T19:17:07.668Z] [INFO] [API] [2025-08-05T19:17:07.668Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.669Z] [INFO] [API] [2025-08-05T19:17:07.669Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-4-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-4-raydium","poolAddress":"","token0":"tokenA-4","token1":"tokenB-4","token0Symbol":"TKA4","token1Symbol":"TKB4","apy":33.71945557788562,"tvl":1756896.154158185,"volume24h":649222.814521589,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.669Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-4-raydium
+[2025-08-05T19:17:07.669Z] [INFO] [API] [2025-08-05T19:17:07.669Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.669Z] [INFO] [API] [2025-08-05T19:17:07.669Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-7-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-7-raydium","poolAddress":"","token0":"tokenA-7","token1":"tokenB-7","token0Symbol":"TKA7","token1Symbol":"TKB7","apy":18.411139974936603,"tvl":1871509.3487877122,"volume24h":377606.8009307728,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.670Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-7-raydium
+[2025-08-05T19:17:07.670Z] [INFO] [API] [2025-08-05T19:17:07.670Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.670Z] [INFO] [API] [2025-08-05T19:17:07.670Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-9-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-9-raydium","poolAddress":"","token0":"tokenA-9","token1":"tokenB-9","token0Symbol":"TKA9","token1Symbol":"TKB9","apy":13.720893031701417,"tvl":5698087.365091373,"volume24h":856798.3257173492,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.670Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-9-raydium
+[2025-08-05T19:17:07.670Z] [INFO] [DiscoveryAgent-solana] Found 5 yield opportunities on solana
+[2025-08-05T19:17:07.670Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana started successfully
+[2025-08-05T19:17:07.670Z] [INFO] [DiscoveryAgent-solana] Discovery Agent for solana reconfigured and restarted.
+[2025-08-05T19:17:07.670Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-0-raydium
+[2025-08-05T19:17:07.670Z] [INFO] [API] [2025-08-05T19:17:07.670Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.670Z] [INFO] [API] [2025-08-05T19:17:07.670Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-1-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-1-raydium","poolAddress":"","token0":"tokenA-1","token1":"tokenB-1","token0Symbol":"TKA1","token1Symbol":"TKB1","apy":5.3191775791205425,"tvl":9385299.295973679,"volume24h":547091.2174079891,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.671Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-1-raydium
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-2-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-2-raydium","poolAddress":"","token0":"tokenA-2","token1":"tokenB-2","token0Symbol":"TKA2","token1Symbol":"TKB2","apy":11.033010663792087,"tvl":3044671.0518461885,"volume24h":368130.28145488293,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.671Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-2-raydium
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-3-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-3-raydium","poolAddress":"","token0":"tokenA-3","token1":"tokenB-3","token0Symbol":"TKA3","token1Symbol":"TKB3","apy":24.157906882622797,"tvl":2326424.3093259283,"volume24h":615907.3077716803,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.671Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-3-raydium
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.671Z] [INFO] [API] [2025-08-05T19:17:07.671Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-5-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-5-raydium","poolAddress":"","token0":"tokenA-5","token1":"tokenB-5","token0Symbol":"TKA5","token1Symbol":"TKB5","apy":51.44034772707489,"tvl":976225.827136259,"volume24h":550327.6274853749,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.671Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-5-raydium
+[2025-08-05T19:17:07.672Z] [INFO] [API] [2025-08-05T19:17:07.672Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.673Z] [INFO] [API] [2025-08-05T19:17:07.673Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-6-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-6-raydium","poolAddress":"","token0":"tokenA-6","token1":"tokenB-6","token0Symbol":"TKA6","token1Symbol":"TKB6","apy":7.016774910788946,"tvl":7632908.036335011,"volume24h":586941.3436242722,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.673Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-6-raydium
+[2025-08-05T19:17:07.674Z] [INFO] [API] [2025-08-05T19:17:07.674Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.674Z] [INFO] [API] [2025-08-05T19:17:07.674Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-8-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-8-raydium","poolAddress":"","token0":"tokenA-8","token1":"tokenB-8","token0Symbol":"TKA8","token1Symbol":"TKB8","apy":10.238703121595764,"tvl":8449034.957793852,"volume24h":948023.6777735414,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.674Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-8-raydium
+[2025-08-05T19:17:07.674Z] [INFO] [API] [2025-08-05T19:17:07.674Z] API: Forwarding YIELD_OPPORTUNITY from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:07.674Z] [INFO] [API] [2025-08-05T19:17:07.674Z] DEBUG: Emitting WebSocket event 'yield_opportunity' with data: {"id":"solana-raydium-mock-pool-9-raydium","chain":"solana","dex":"raydium","pool":"mock-pool-9-raydium","poolAddress":"","token0":"tokenA-9","token1":"tokenB-9","token0Symbol":"TKA9","token1Symbol":"TKB9","apy":20.306565176394532,"tvl":3563406.9971825834,"volume24h":792992.3993239282,"fee":0.0025,"riskScore":0.6}
+[2025-08-05T19:17:07.674Z] [INFO] [DiscoveryAgent-solana] DiscoveryAgent broadcasted opportunity: solana-raydium-mock-pool-9-raydium
+[2025-08-05T19:17:07.674Z] [INFO] [DiscoveryAgent-solana] Found 8 yield opportunities on solana
+[2025-08-05T19:17:07.674Z] [SUCCESS] [DiscoveryAgent-solana] Discovery Agent for solana started successfully
+[2025-08-05T19:17:07.674Z] [INFO] [DiscoveryAgent-solana] Discovery Agent for solana reconfigured and restarted.
+[2025-08-05T19:17:12.618Z] [INFO] [AnalysisAgent] Performing portfolio optimization...
+[2025-08-05T19:17:12.622Z] [INFO] [AnalysisAgent] Attempting LLM-based portfolio optimization...
+[2025-08-05T19:17:12.623Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.optimize_allocation",
   "params": {
     "opportunities": [
       {
         "id": "solana-raydium-mock-pool-0-raydium",
-        "expected_yield": 0.08010406900901507,
-        "risk_score": 0.6,
+        "apy": 7.657979173291587,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 7990470.562218078,
-        "volume24h": 701445.7044716935
+        "tvl": 8893922.025300983,
+        "volume24h": 746405.1467247591,
+        "dex": "raydium",
+        "pool": "mock-pool-0-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-1-raydium",
-        "expected_yield": 0.08751597029390643,
-        "risk_score": 0.6,
+        "apy": 5.3191775791205425,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 7062275.16676841,
-        "volume24h": 677328.0698107367
+        "tvl": 9385299.295973679,
+        "volume24h": 547091.2174079891,
+        "dex": "raydium",
+        "pool": "mock-pool-1-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-2-raydium",
-        "expected_yield": 0.3666226478858914,
-        "risk_score": 0.6,
+        "apy": 11.033010663792087,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 2437876.6481617074,
-        "volume24h": 979485.799417235
-      },
-      {
-        "id": "solana-raydium-mock-pool-3-raydium",
-        "expected_yield": 0.004262624185566851,
-        "risk_score": 0.6,
-        "chain": "solana",
-        "tvl": 8112436.58642545,
-        "volume24h": 37896.18454484878
+        "tvl": 3044671.0518461885,
+        "volume24h": 368130.28145488293,
+        "dex": "raydium",
+        "pool": "mock-pool-2-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-4-raydium",
-        "expected_yield": 0.1595214666462322,
-        "risk_score": 0.6,
+        "apy": 33.71945557788562,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 2605021.6177484063,
-        "volume24h": 455404.788063963
-      },
-      {
-        "id": "solana-raydium-mock-pool-5-raydium",
-        "expected_yield": 0.015535108598315965,
-        "risk_score": 0.6,
-        "chain": "solana",
-        "tvl": 8055955.134890918,
-        "volume24h": 137150.83603692224
+        "tvl": 1756896.154158185,
+        "volume24h": 649222.814521589,
+        "dex": "raydium",
+        "pool": "mock-pool-4-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-6-raydium",
-        "expected_yield": 0.04479520222537071,
-        "risk_score": 0.6,
+        "apy": 7.016774910788946,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 9494271.418844732,
-        "volume24h": 466079.7897969392
+        "tvl": 7632908.036335011,
+        "volume24h": 586941.3436242722,
+        "dex": "raydium",
+        "pool": "mock-pool-6-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-7-raydium",
-        "expected_yield": 0.993753034460886,
-        "risk_score": 0.6,
+        "apy": 18.411139974936603,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 869868.481971593,
-        "volume24h": 947325.4175793482
+        "tvl": 1871509.3487877122,
+        "volume24h": 377606.8009307728,
+        "dex": "raydium",
+        "pool": "mock-pool-7-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-8-raydium",
-        "expected_yield": 0.4494807294616343,
-        "risk_score": 0.6,
+        "apy": 10.238703121595764,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 1609387.1647191637,
-        "volume24h": 792754.5389415463
+        "tvl": 8449034.957793852,
+        "volume24h": 948023.6777735414,
+        "dex": "raydium",
+        "pool": "mock-pool-8-raydium"
       },
       {
         "id": "solana-raydium-mock-pool-9-raydium",
-        "expected_yield": 0.13426860779329328,
-        "risk_score": 0.6,
+        "apy": 20.306565176394532,
+        "riskScore": 0.6,
         "chain": "solana",
-        "tvl": 6552052.8167196,
-        "volume24h": 964093.1615222646
+        "tvl": 3563406.9971825834,
+        "volume24h": 792992.3993239282,
+        "dex": "raydium",
+        "pool": "mock-pool-9-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-3-raydium",
+        "apy": 24.157906882622797,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 2326424.3093259283,
+        "volume24h": 615907.3077716803,
+        "dex": "raydium",
+        "pool": "mock-pool-3-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-5-raydium",
+        "apy": 51.44034772707489,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 976225.827136259,
+        "volume24h": 550327.6274853749,
+        "dex": "raydium",
+        "pool": "mock-pool-5-raydium"
       }
     ],
     "constraints": {
-      "risk_tolerance": 0.7,
-      "max_allocation_per_opportunity": 0.2,
-      "min_allocation_per_opportunity": 0.05,
-      "total_allocation": 1
+      "riskTolerance": 0.8,
+      "maxAllocationPerOpportunity": 0.3,
+      "minAllocationPerOpportunity": 0.01,
+      "totalAllocation": 1
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
     }
   },
-  "id": "3d9e53d0-0cb8-4caa-b467-4695c61c7828"
+  "id": "2c94204a-2fe9-4503-8335-2301c112912c"
 }
-[2025-08-01T20:29:26.756Z] [INFO] [AnalysisAgent] Broadcasting portfolio update to all agents and UI.
-[2025-08-01T20:29:26.757Z] [INFO] [API] API: Forwarding PORTFOLIO_UPDATE to WebSocket clients
-[2025-08-01T20:29:26.757Z] [INFO] [API] DEBUG: Emitting WebSocket event 'portfolio_update' with data: {"allocations":[{"opportunityId":"solana-raydium-mock-pool-0-raydium","allocation":0.05,"expectedYield":0.08010406900901507,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-1-raydium","allocation":0.05,"expectedYield":0.08751597029390643,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-2-raydium","allocation":0.2,"expectedYield":0.3666226478858914,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-3-raydium","allocation":0.05,"expectedYield":0.004262624185566851,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-4-raydium","allocation":0.09604404553677484,"expectedYield":0.1595214666462322,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-5-raydium","allocation":0.05,"expectedYield":0.015535108598315965,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-6-raydium","allocation":0.049999999999999996,"expectedYield":0.04479520222537071,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-7-raydium","allocation":0.2,"expectedYield":0.993753034460886,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-8-raydium","allocation":0.2,"expectedYield":0.4494807294616343,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-9-raydium","allocation":0.05395595446322513,"expectedYield":0.13426860779329328,"riskScore":0.6,"chain":"solana"}],"timestamp":1754080166756,"totalExpectedYield":39.61476089718905,"totalRisk":0.5999999999999999}
-[2025-08-01T20:29:26.758Z] [INFO] [API] API: Forwarding RISK_ALERT to WebSocket clients
-[2025-08-01T20:29:26.758Z] [INFO] [API] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754080166758","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-0-raydium","solana-raydium-mock-pool-1-raydium","solana-raydium-mock-pool-2-raydium","solana-raydium-mock-pool-3-raydium","solana-raydium-mock-pool-4-raydium","solana-raydium-mock-pool-5-raydium","solana-raydium-mock-pool-6-raydium","solana-raydium-mock-pool-7-raydium","solana-raydium-mock-pool-8-raydium","solana-raydium-mock-pool-9-raydium"],"timestamp":1754080166758,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
-[2025-08-01T20:29:26.758Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
-[2025-08-01T20:29:26.758Z] [WARN] [RiskAgent] Generated 1 risk alerts
-[2025-08-01T20:29:26.758Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
-[2025-08-01T20:29:26.758Z] [SUCCESS] [AnalysisAgent] Portfolio optimized and broadcasted with 10 allocations
-[2025-08-01T20:29:46.698Z] [INFO] [API] API: Forwarding RISK_ALERT to WebSocket clients
-[2025-08-01T20:29:46.699Z] [INFO] [API] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754080186698","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-0-raydium","solana-raydium-mock-pool-1-raydium","solana-raydium-mock-pool-2-raydium","solana-raydium-mock-pool-3-raydium","solana-raydium-mock-pool-4-raydium","solana-raydium-mock-pool-5-raydium","solana-raydium-mock-pool-6-raydium","solana-raydium-mock-pool-7-raydium","solana-raydium-mock-pool-8-raydium","solana-raydium-mock-pool-9-raydium"],"timestamp":1754080186698,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
-[2025-08-01T20:29:46.699Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
-[2025-08-01T20:29:46.699Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
-[2025-08-01T20:29:46.700Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
-[2025-08-01T20:29:46.700Z] [WARN] [RiskAgent] Generated 1 risk alerts
-[2025-08-01T20:29:51.702Z] [INFO] [AnalysisAgent] Performing portfolio optimization...
-
-
-
+[2025-08-05T19:17:13.068Z] [INFO] [AnalysisAgent] Successfully received LLM-optimized allocations
+[2025-08-05T19:17:13.069Z] [WARN] [AnalysisAgent] Using fallback allocation strategy
+[2025-08-05T19:17:13.069Z] [INFO] [AnalysisAgent] Using LLM-optimized allocations
+[2025-08-05T19:17:13.069Z] [INFO] [AnalysisAgent] Broadcasting portfolio update to all agents and UI.
+[2025-08-05T19:17:13.069Z] [INFO] [API] [2025-08-05T19:17:13.069Z] API: Forwarding PORTFOLIO_UPDATE from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:13.070Z] [INFO] [API] [2025-08-05T19:17:13.069Z] DEBUG: Emitting WebSocket event 'portfolio_update' with data: {"allocations":[{"opportunityId":"solana-raydium-mock-pool-5-raydium","allocation":0.2,"expectedYield":0.5144034772707489,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-4-raydium","allocation":0.2,"expectedYield":0.3371945557788562,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-3-raydium","allocation":0.2,"expectedYield":0.24157906882622796,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-9-raydium","allocation":0.2,"expectedYield":0.2030656517639453,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-7-raydium","allocation":0.2,"expectedYield":0.18411139974936602,"riskScore":0.6,"chain":"solana"}],"timestamp":1754421433069,"totalExpectedYield":29.607083067782884,"totalRisk":0.6}
+[2025-08-05T19:17:13.070Z] [INFO] [API] [2025-08-05T19:17:13.069Z] DEBUG: portfolio_update event details - Connected clients: 1
+[2025-08-05T19:17:13.070Z] [INFO] [API] [2025-08-05T19:17:13.069Z] DEBUG: portfolio_update data structure: {
+  "allocations": [
+    {
+      "opportunityId": "solana-raydium-mock-pool-5-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.5144034772707489,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-4-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.3371945557788562,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-3-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.24157906882622796,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-9-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.2030656517639453,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-7-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.18411139974936602,
+      "riskScore": 0.6,
+      "chain": "solana"
+    }
+  ],
+  "timestamp": 1754421433069,
+  "totalExpectedYield": 29.607083067782884,
+  "totalRisk": 0.6
+}
+[2025-08-05T19:17:13.070Z] [INFO] [API] [2025-08-05T19:17:13.069Z] DEBUG: Connected client IDs: [
+  "liHgfF74BgI_jButAAAB"
+]
+[2025-08-05T19:17:13.070Z] [INFO] [RiskAgent] Attempting LLM-based risk assessment...
+[2025-08-05T19:17:13.071Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.assess_portfolio_risk",
+  "params": {
+    "portfolio": [
+      {
+        "opportunityId": "solana-raydium-mock-pool-5-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.5144034772707489,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-4-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.3371945557788562,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-3-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.24157906882622796,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-9-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.2030656517639453,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-7-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.18411139974936602,
+        "riskScore": 0.6,
+        "chain": "solana"
+      }
+    ],
+    "risk_metrics": {
+      "totalAllocation": 1,
+      "averageRiskScore": 0.6,
+      "numberOfAllocations": 5,
+      "chains": [
+        "solana"
+      ],
+      "concentrationRisk": 0.20000000000000004,
+      "crossChainRisk": "high"
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "f8d37909-0a3d-4d2c-94a7-5e21e88edf6e"
+}
+[2025-08-05T19:17:13.181Z] [INFO] [RiskAgent] Successfully received LLM-based risk assessment
+[2025-08-05T19:17:13.183Z] [INFO] [API] [2025-08-05T19:17:13.183Z] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:13.183Z] [INFO] [API] [2025-08-05T19:17:13.183Z] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754421433183","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-5-raydium","solana-raydium-mock-pool-4-raydium","solana-raydium-mock-pool-3-raydium","solana-raydium-mock-pool-9-raydium","solana-raydium-mock-pool-7-raydium"],"timestamp":1754421433183,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
+[2025-08-05T19:17:13.183Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[2025-08-05T19:17:13.183Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
+[2025-08-05T19:17:13.184Z] [SUCCESS] [AnalysisAgent] Portfolio optimized and broadcasted with 5 allocations
+[2025-08-05T19:17:29.914Z] [INFO] [RiskAgent] Attempting LLM-based risk assessment...
+[2025-08-05T19:17:29.914Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.assess_portfolio_risk",
+  "params": {
+    "portfolio": [
+      {
+        "opportunityId": "solana-raydium-mock-pool-5-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.5144034772707489,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-4-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.3371945557788562,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-3-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.24157906882622796,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-9-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.2030656517639453,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-7-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.18411139974936602,
+        "riskScore": 0.6,
+        "chain": "solana"
+      }
+    ],
+    "risk_metrics": {
+      "totalAllocation": 1,
+      "averageRiskScore": 0.6,
+      "numberOfAllocations": 5,
+      "chains": [
+        "solana"
+      ],
+      "concentrationRisk": 0.20000000000000004,
+      "crossChainRisk": "high"
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "47c6cddd-7558-4e5d-aa4b-82d929d8ad4e"
+}
+[2025-08-05T19:17:29.916Z] [INFO] [RiskAgent] Successfully received LLM-based risk assessment
+[2025-08-05T19:17:29.916Z] [INFO] [API] [2025-08-05T19:17:29.916Z] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:29.917Z] [INFO] [API] [2025-08-05T19:17:29.917Z] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754421449916","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-5-raydium","solana-raydium-mock-pool-4-raydium","solana-raydium-mock-pool-3-raydium","solana-raydium-mock-pool-9-raydium","solana-raydium-mock-pool-7-raydium"],"timestamp":1754421449916,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
+[2025-08-05T19:17:29.917Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
+[2025-08-05T19:17:29.917Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
+[2025-08-05T19:17:29.918Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[2025-08-05T19:17:34.920Z] [INFO] [AnalysisAgent] Performing portfolio optimization...
+[2025-08-05T19:17:34.920Z] [INFO] [AnalysisAgent] Attempting LLM-based portfolio optimization...
+[2025-08-05T19:17:34.920Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.optimize_allocation",
+  "params": {
+    "opportunities": [
+      {
+        "id": "solana-raydium-mock-pool-0-raydium",
+        "apy": 7.657979173291587,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 8893922.025300983,
+        "volume24h": 746405.1467247591,
+        "dex": "raydium",
+        "pool": "mock-pool-0-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-1-raydium",
+        "apy": 5.3191775791205425,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 9385299.295973679,
+        "volume24h": 547091.2174079891,
+        "dex": "raydium",
+        "pool": "mock-pool-1-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-2-raydium",
+        "apy": 11.033010663792087,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 3044671.0518461885,
+        "volume24h": 368130.28145488293,
+        "dex": "raydium",
+        "pool": "mock-pool-2-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-6-raydium",
+        "apy": 7.016774910788946,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 7632908.036335011,
+        "volume24h": 586941.3436242722,
+        "dex": "raydium",
+        "pool": "mock-pool-6-raydium"
+      },
+      {
+        "id": "solana-raydium-mock-pool-8-raydium",
+        "apy": 10.238703121595764,
+        "riskScore": 0.6,
+        "chain": "solana",
+        "tvl": 8449034.957793852,
+        "volume24h": 948023.6777735414,
+        "dex": "raydium",
+        "pool": "mock-pool-8-raydium"
+      }
+    ],
+    "constraints": {
+      "riskTolerance": 0.8,
+      "maxAllocationPerOpportunity": 0.3,
+      "minAllocationPerOpportunity": 0.01,
+      "totalAllocation": 1
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "6c896a32-bc56-4c94-9fae-2f81e19f1afc"
+}
+[2025-08-05T19:17:34.921Z] [INFO] [AnalysisAgent] Successfully received LLM-optimized allocations
+[2025-08-05T19:17:34.921Z] [WARN] [AnalysisAgent] Using fallback allocation strategy
+[2025-08-05T19:17:34.922Z] [INFO] [AnalysisAgent] Using LLM-optimized allocations
+[2025-08-05T19:17:34.922Z] [INFO] [AnalysisAgent] Broadcasting portfolio update to all agents and UI.
+[2025-08-05T19:17:34.922Z] [INFO] [API] [2025-08-05T19:17:34.922Z] API: Forwarding PORTFOLIO_UPDATE from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:34.922Z] [INFO] [API] [2025-08-05T19:17:34.922Z] DEBUG: Emitting WebSocket event 'portfolio_update' with data: {"allocations":[{"opportunityId":"solana-raydium-mock-pool-2-raydium","allocation":0.2,"expectedYield":0.11033010663792087,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-8-raydium","allocation":0.2,"expectedYield":0.10238703121595764,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-0-raydium","allocation":0.2,"expectedYield":0.07657979173291588,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-6-raydium","allocation":0.2,"expectedYield":0.07016774910788946,"riskScore":0.6,"chain":"solana"},{"opportunityId":"solana-raydium-mock-pool-1-raydium","allocation":0.2,"expectedYield":0.053191775791205424,"riskScore":0.6,"chain":"solana"}],"timestamp":1754421454922,"totalExpectedYield":8.253129089717785,"totalRisk":0.6}
+[2025-08-05T19:17:34.922Z] [INFO] [API] [2025-08-05T19:17:34.922Z] DEBUG: portfolio_update event details - Connected clients: 1
+[2025-08-05T19:17:34.922Z] [INFO] [API] [2025-08-05T19:17:34.922Z] DEBUG: portfolio_update data structure: {
+  "allocations": [
+    {
+      "opportunityId": "solana-raydium-mock-pool-2-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.11033010663792087,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-8-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.10238703121595764,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-0-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.07657979173291588,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-6-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.07016774910788946,
+      "riskScore": 0.6,
+      "chain": "solana"
+    },
+    {
+      "opportunityId": "solana-raydium-mock-pool-1-raydium",
+      "allocation": 0.2,
+      "expectedYield": 0.053191775791205424,
+      "riskScore": 0.6,
+      "chain": "solana"
+    }
+  ],
+  "timestamp": 1754421454922,
+  "totalExpectedYield": 8.253129089717785,
+  "totalRisk": 0.6
+}
+[2025-08-05T19:17:34.923Z] [INFO] [API] [2025-08-05T19:17:34.922Z] DEBUG: Connected client IDs: [
+  "liHgfF74BgI_jButAAAB"
+]
+[2025-08-05T19:17:34.923Z] [INFO] [RiskAgent] Attempting LLM-based risk assessment...
+[2025-08-05T19:17:34.924Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.assess_portfolio_risk",
+  "params": {
+    "portfolio": [
+      {
+        "opportunityId": "solana-raydium-mock-pool-2-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.11033010663792087,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-8-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.10238703121595764,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-0-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07657979173291588,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-6-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07016774910788946,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-1-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.053191775791205424,
+        "riskScore": 0.6,
+        "chain": "solana"
+      }
+    ],
+    "risk_metrics": {
+      "totalAllocation": 1,
+      "averageRiskScore": 0.6,
+      "numberOfAllocations": 5,
+      "chains": [
+        "solana"
+      ],
+      "concentrationRisk": 0.20000000000000004,
+      "crossChainRisk": "high"
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "6cc497e1-410c-494d-a8b7-53cfc34a5943"
+}
+[2025-08-05T19:17:34.925Z] [INFO] [RiskAgent] Successfully received LLM-based risk assessment
+[2025-08-05T19:17:34.926Z] [INFO] [API] [2025-08-05T19:17:34.926Z] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:34.926Z] [INFO] [API] [2025-08-05T19:17:34.926Z] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754421454926","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-2-raydium","solana-raydium-mock-pool-8-raydium","solana-raydium-mock-pool-0-raydium","solana-raydium-mock-pool-6-raydium","solana-raydium-mock-pool-1-raydium"],"timestamp":1754421454926,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
+[2025-08-05T19:17:34.927Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[2025-08-05T19:17:34.927Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
+[2025-08-05T19:17:34.927Z] [SUCCESS] [AnalysisAgent] Portfolio optimized and broadcasted with 5 allocations
+[2025-08-05T19:17:59.920Z] [INFO] [RiskAgent] Attempting LLM-based risk assessment...
+[2025-08-05T19:17:59.920Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.assess_portfolio_risk",
+  "params": {
+    "portfolio": [
+      {
+        "opportunityId": "solana-raydium-mock-pool-2-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.11033010663792087,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-8-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.10238703121595764,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-0-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07657979173291588,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-6-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07016774910788946,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-1-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.053191775791205424,
+        "riskScore": 0.6,
+        "chain": "solana"
+      }
+    ],
+    "risk_metrics": {
+      "totalAllocation": 1,
+      "averageRiskScore": 0.6,
+      "numberOfAllocations": 5,
+      "chains": [
+        "solana"
+      ],
+      "concentrationRisk": 0.20000000000000004,
+      "crossChainRisk": "high"
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "1fbd0810-35e8-463c-8c33-d6f1f7f87888"
+}
+[2025-08-05T19:17:59.945Z] [INFO] [RiskAgent] Successfully received LLM-based risk assessment
+[2025-08-05T19:17:59.945Z] [INFO] [API] [2025-08-05T19:17:59.945Z] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients
+[2025-08-05T19:17:59.945Z] [INFO] [API] [2025-08-05T19:17:59.945Z] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754421479945","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-2-raydium","solana-raydium-mock-pool-8-raydium","solana-raydium-mock-pool-0-raydium","solana-raydium-mock-pool-6-raydium","solana-raydium-mock-pool-1-raydium"],"timestamp":1754421479945,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
+[2025-08-05T19:17:59.946Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
+[2025-08-05T19:17:59.946Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
+[2025-08-05T19:17:59.946Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[2025-08-05T19:18:04.946Z] [INFO] [AnalysisAgent] Performing portfolio optimization...
+[2025-08-05T19:18:29.929Z] [INFO] [RiskAgent] Attempting LLM-based risk assessment...
+[2025-08-05T19:18:29.929Z] [INFO] [CustomJuliaBridge] Sending request: {
+  "jsonrpc": "2.0",
+  "command": "llm.assess_portfolio_risk",
+  "params": {
+    "portfolio": [
+      {
+        "opportunityId": "solana-raydium-mock-pool-2-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.11033010663792087,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-8-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.10238703121595764,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-0-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07657979173291588,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-6-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.07016774910788946,
+        "riskScore": 0.6,
+        "chain": "solana"
+      },
+      {
+        "opportunityId": "solana-raydium-mock-pool-1-raydium",
+        "allocation": 0.2,
+        "expectedYield": 0.053191775791205424,
+        "riskScore": 0.6,
+        "chain": "solana"
+      }
+    ],
+    "risk_metrics": {
+      "totalAllocation": 1,
+      "averageRiskScore": 0.6,
+      "numberOfAllocations": 5,
+      "chains": [
+        "solana"
+      ],
+      "concentrationRisk": 0.20000000000000004,
+      "crossChainRisk": "high"
+    },
+    "provider": "echo",
+    "config": {
+      "model": "gpt-4",
+      "temperature": 0.7
+    }
+  },
+  "id": "4542ca43-a66c-47cd-b5ef-992c919029bf"
+}
+[2025-08-05T19:18:29.940Z] [INFO] [RiskAgent] Successfully received LLM-based risk assessment
+[2025-08-05T19:18:29.940Z] [INFO] [API] [2025-08-05T19:18:29.940Z] API: Forwarding RISK_ALERT from AgentCommunication to WebSocket clients
+[2025-08-05T19:18:29.940Z] [INFO] [API] [2025-08-05T19:18:29.940Z] DEBUG: Emitting WebSocket event 'risk_alert' with data: {"id":"cross-chain-risk-1754421509940","type":"cross_chain_risk","severity":"critical","message":"High cross-chain concentration risk detected in solana","affectedOpportunities":["solana-raydium-mock-pool-2-raydium","solana-raydium-mock-pool-8-raydium","solana-raydium-mock-pool-0-raydium","solana-raydium-mock-pool-6-raydium","solana-raydium-mock-pool-1-raydium"],"timestamp":1754421509940,"recommendations":["Diversify allocations across multiple chains","Monitor bridge and cross-chain protocol risks","Consider chain-specific risk factors"]}
+[2025-08-05T19:18:29.941Z] [WARN] [AnalysisAgent] Received risk alert: "High cross-chain concentration risk detected in solana". Re-scheduling optimization.
+[2025-08-05T19:18:29.941Z] [INFO] [AnalysisAgent] Scheduling portfolio optimization in 5 seconds...
+[2025-08-05T19:18:29.941Z] [WARN] [RiskAgent] Broadcasted risk alert: cross_chain_risk - High cross-chain concentration risk detected in solana
 
 Julia Server:
 
- 
+
+[skipp@archlinux backend]$ 
 [skipp@archlinux backend]$ pkill julia
 [skipp@archlinux backend]$ julia julia_server.jl
 Julia backend listening on 127.0.0.1:8052
@@ -432,54 +921,40 @@ Subscribed handler to event: agent_stopped
 Subscribed handler to event: swarm_created
 Subscribed handler to event: swarm_started
 Subscribed handler to event: swarm_stopped
-Event: Agent Created - Dict("name" => "DiscoveryAgentBob", "id" => "d215e903-d3a4-4955-a64b-1d2a4ce26429", "chain" => "solana", "type" => "discovery")
+Event: Agent Created - Dict("name" => "DiscoveryAgent", "id" => "3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa", "chain" => "solana", "type" => "discovery")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Agent Created - Dict("name" => "AnalysisAgentLisa", "id" => "26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0", "chain" => "solana", "type" => "analysis")
+Event: Agent Created - Dict("name" => "AnalysisAgent", "id" => "86963f53-d460-4fb4-ae5c-808112166962", "chain" => "solana", "type" => "analysis")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Agent Created - Dict("name" => "RiskAgentTom", "id" => "b523089e-e1e6-4585-b4c7-88215884805a", "chain" => "solana", "type" => "risk")
+Event: Agent Created - Dict("name" => "RiskAgent", "id" => "9e4ec970-9748-4d04-858a-519884fd7868", "chain" => "solana", "type" => "risk")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Swarm Created - Dict{String, Any}("name" => "SwarmHQ", "algorithm" => Dict{String, Any}("params" => Dict{String, Any}(), "type" => "PortfolioOptimization"), "id" => "847886f7-5e3a-40ab-bbb9-8ade96b5b534")
+Event: Swarm Created - Dict{String, Any}("name" => "Swarm2", "algorithm" => Dict{String, Any}("params" => Dict{String, Any}(), "type" => "PortfolioOptimization"), "id" => "02f9e872-d2f5-44c6-80f9-7cec5d10834a")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Agent Started - Dict("name" => "DiscoveryAgentBob", "id" => "d215e903-d3a4-4955-a64b-1d2a4ce26429", "type" => "discovery")
+Event: Agent Started - Dict("name" => "DiscoveryAgent", "id" => "3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa", "type" => "discovery")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Agent Started - Dict("name" => "AnalysisAgentLisa", "id" => "26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0", "type" => "analysis")
+Event: Agent Started - Dict("name" => "RiskAgent", "id" => "9e4ec970-9748-4d04-858a-519884fd7868", "type" => "risk")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Agent Started - Dict("name" => "RiskAgentTom", "id" => "b523089e-e1e6-4585-b4c7-88215884805a", "type" => "risk")
+Event: Agent Started - Dict("name" => "AnalysisAgent", "id" => "86963f53-d460-4fb4-ae5c-808112166962", "type" => "analysis")
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Event: Swarm Started - Dict("name" => "SwarmHQ", "status" => "running", "id" => "847886f7-5e3a-40ab-bbb9-8ade96b5b534")
-Starting swarm SwarmHQ
-Swarm SwarmHQ is performing background tasks...
+Event: Swarm Started - Dict("name" => "Swarm2", "status" => "running", "id" => "02f9e872-d2f5-44c6-80f9-7cec5d10834a")
+Starting swarm Swarm2
+Swarm Swarm2 is performing background tasks...
 Data saved to /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/agents.json and /home/skipp/Documents/projects/MCDYOS/src/julia/../../data/swarms.json
-Swarm SwarmHQ is performing background tasks...
-Running HiGHS 1.11.0 (git hash: 364c83a51e): Copyright (c) 2025 HiGHS under MIT licence terms
-QP   has 12 rows; 10 cols; 30 matrix nonzeros; 10 Hessian nonzeros
-Coefficient ranges:
-  Matrix [6e-01, 1e+00]
-  Cost   [4e-03, 1e+00]
-  Bound  [2e-01, 2e-01]
-  RHS    [5e-02, 1e+00]
-  Iteration        Objective     NullspaceDim
-          0      -0.29215808                0      0.00s
-          8      -0.33275689                1      0.00s
-Model status        : Optimal
-QP ASM    iterations: 8
-Objective value     :  3.3275689786e-01
-P-D objective error :  8.6841493023e-09
-HiGHS run time      :          0.00
-Swarm SwarmHQ is performing background tasks...
-Swarm SwarmHQ is performing background tasks...
-Swarm SwarmHQ is performing background tasks...
-Swarm SwarmHQ is performing background tasks...
-
-
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
+Swarm Swarm2 is performing background tasks...
  
 Dashbord UI:
 
 
 YieldSwarm Dashboard
 v2.0
-Disconnected
+Connected
 Data Mode:
 Active Chains:
 Ethereum
@@ -489,57 +964,171 @@ Arbitrum
 BSC
 Agent Management
 ID 	Name 	Type 	Chain 	Status 	Actions
-d215e903-d3a4-4955-a64b-1d2a4ce26429 	DiscoveryAgentBob 	discovery 	solana 	running 	
-26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0 	AnalysisAgentLisa 	analysis 	solana 	running 	
-b523089e-e1e6-4585-b4c7-88215884805a 	RiskAgentTom 	risk 	solana 	running 	
+3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa 	DiscoveryAgent 	discovery 	solana 	running 	
+9e4ec970-9748-4d04-858a-519884fd7868 	RiskAgent 	risk 	solana 	running 	
+86963f53-d460-4fb4-ae5c-808112166962 	AnalysisAgent 	analysis 	solana 	running 	
 Swarm Management
 ID 	Name 	Algorithm 	Status 	Agents 	Actions
-847886f7-5e3a-40ab-bbb9-8ade96b5b534 	SwarmHQ 	[object Object] 	running 	[object Object] 	
+02f9e872-d2f5-44c6-80f9-7cec5d10834a 	Swarm2 	[object Object] 	running 	[object Object] 	
 Live Opportunity Feed
-0 opportunities Last update: Never
+20 opportunities Last update: 8:17:07 PM
 Chain 	DEX 	Pool 	APY (%) 	TVL ($) 	Risk
-Waiting for opportunities...
+solana 	raydium 	mock-pool-9-raydium 	20.306565176394532% 	$3.6M 	medium
+solana 	raydium 	mock-pool-8-raydium 	10.238703121595764% 	$8.4M 	low
+solana 	raydium 	mock-pool-6-raydium 	7.016774910788946% 	$7.6M 	low
+solana 	raydium 	mock-pool-5-raydium 	51.44034772707489% 	$976.2K 	high
+solana 	raydium 	mock-pool-3-raydium 	24.157906882622797% 	$2.3M 	medium
+solana 	raydium 	mock-pool-2-raydium 	11.033010663792087% 	$3.0M 	low
+solana 	raydium 	mock-pool-1-raydium 	5.3191775791205425% 	$9.4M 	low
+solana 	raydium 	mock-pool-9-raydium 	13.720893031701417% 	$5.7M 	low
+solana 	raydium 	mock-pool-7-raydium 	18.411139974936603% 	$1.9M 	low
+solana 	raydium 	mock-pool-4-raydium 	33.71945557788562% 	$1.8M 	medium
+solana 	raydium 	mock-pool-3-raydium 	7.61759610479686% 	$2.7M 	low
+solana 	raydium 	mock-pool-1-raydium 	7.8929408222830775% 	$8.2M 	low
+solana 	raydium 	mock-pool-0-raydium 	7.657979173291587% 	$8.9M 	low
+solana 	raydium 	mock-pool-9-raydium 	37.95766756151625% 	$1.1M 	medium
+solana 	raydium 	mock-pool-8-raydium 	13.335453583684293% 	$4.0M 	low
+solana 	raydium 	mock-pool-7-raydium 	20.805922059850186% 	$3.4M 	medium
+solana 	raydium 	mock-pool-6-raydium 	7.496579927872572% 	$8.7M 	low
+solana 	raydium 	mock-pool-4-raydium 	15.763215852019924% 	$5.0M 	low
+solana 	raydium 	mock-pool-2-raydium 	8.968629767554443% 	$5.6M 	low
+solana 	raydium 	mock-pool-1-raydium 	10.123601011687825% 	$7.5M 	low
 Portfolio Allocation
-Expected Yield: 0.00%
+Expected Yield: 8.25%
 Total Risk: Medium
-0% Allocated
+100.0% Allocated
+solana-raydium-mock-pool-2-raydium (20.0%)
+solana-raydium-mock-pool-8-raydium (20.0%)
+solana-raydium-mock-pool-0-raydium (20.0%)
+solana-raydium-mock-pool-6-raydium (20.0%)
+solana-raydium-mock-pool-1-raydium (20.0%)
 Opportunity 	Chain 	Allocation 	Yield
-No allocations
+solana-raydium-mock-pool-2-raydium 	solana 	20.0% 	11.03%
+solana-raydium-mock-pool-8-raydium 	solana 	20.0% 	10.24%
+solana-raydium-mock-pool-0-raydium 	solana 	20.0% 	7.66%
+solana-raydium-mock-pool-6-raydium 	solana 	20.0% 	7.02%
+solana-raydium-mock-pool-1-raydium 	solana 	20.0% 	5.32%
 Risk Alerts
-0 0 0 0
-No active risk alerts
+6 0 0 0
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
+cross_chain_risk critical
+High cross-chain concentration risk detected in solana
+Recommendation: Diversify allocations across multiple chains,Monitor bridge and cross-chain protocol risks,Consider chain-specific risk factors
 System Logs
-[9:29:17 PM] Configuration applied: mock mode, chains: solana
-[9:29:10 PM] Loaded 1 swarms
-[9:29:10 PM] Loading swarms...
-[9:29:09 PM] Loaded 3 agents
-[9:29:09 PM] Loading agents...
-[9:29:07 PM] Swarm 847886f7-5e3a-40ab-bbb9-8ade96b5b534 start command sent
-[9:29:07 PM] Agent b523089e-e1e6-4585-b4c7-88215884805a start command sent
-[9:29:05 PM] Agent 26b2ad2e-bfdf-4f5f-8a65-4fadb088bcb0 start command sent
-[9:29:05 PM] Agent d215e903-d3a4-4955-a64b-1d2a4ce26429 start command sent
-[9:29:00 PM] Loaded 1 swarms
-[9:29:00 PM] Loading swarms...
-[9:29:00 PM] Swarm "SwarmHQ" created successfully
-[9:28:46 PM] Loaded 3 agents
-[9:28:46 PM] Loading agents...
-[9:28:46 PM] Agent "RiskAgentTom" created successfully
-[9:28:38 PM] Loaded 2 agents
-[9:28:38 PM] Loading agents...
-[9:28:38 PM] Agent "AnalysisAgentLisa" created successfully
-[9:28:28 PM] Loaded 1 agents
-[9:28:27 PM] Loading agents...
-[9:28:27 PM] Agent "DiscoveryAgentBob" created successfully
-[9:28:13 PM] Configuration applied: mock mode, chains: solana
-[9:27:45 PM] Configuration applied: mock mode, chains: solana
-[9:27:34 PM] Dashboard ready
-[9:27:34 PM] WebSocket connection failed: io is not a function
-[9:27:33 PM] Loaded 0 swarms
-[9:27:33 PM] Loaded 0 agents
-[9:27:32 PM] Loading swarms...
-[9:27:32 PM] Loading agents...
-[9:27:32 PM] Dashboard initializing...
-[System] Dashboard initialized
+[8:18:59 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:18:59 PM] [2025-08-05T19:18:59.965Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:18:29 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:18:29 PM] [2025-08-05T19:18:29.968Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:17:59 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:17:59 PM] [2025-08-05T19:17:59.948Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:17:34 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:17:34 PM] [2025-08-05T19:17:34.931Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:17:34 PM] [2025-08-05T19:17:34.926Z] Portfolio allocation updated with 5 allocations
+[8:17:34 PM] [2025-08-05T19:17:34.925Z] WebSocket: Received portfolio_update - 5 allocations
+[8:17:29 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:17:29 PM] [2025-08-05T19:17:29.918Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:17:13 PM] Risk Alert: cross_chain_risk - High cross-chain concentration risk detected in solana
+[8:17:13 PM] [2025-08-05T19:17:13.184Z] WebSocket: Received risk_alert - cross_chain_risk
+[8:17:13 PM] [2025-08-05T19:17:13.072Z] Portfolio allocation updated with 5 allocations
+[8:17:13 PM] [2025-08-05T19:17:13.071Z] WebSocket: Received portfolio_update - 5 allocations
+[8:17:07 PM] New opportunity: solana - raydium - 20.306565176394532% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 20.306565176394532
+[8:17:07 PM] [2025-08-05T19:17:07.702Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-9-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 10.238703121595764% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 10.238703121595764
+[8:17:07 PM] [2025-08-05T19:17:07.700Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-8-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 7.016774910788946% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 7.016774910788946
+[8:17:07 PM] [2025-08-05T19:17:07.698Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-6-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 51.44034772707489% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 51.44034772707489
+[8:17:07 PM] [2025-08-05T19:17:07.697Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-5-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 24.157906882622797% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 24.157906882622797
+[8:17:07 PM] [2025-08-05T19:17:07.695Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-3-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 11.033010663792087% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 11.033010663792087
+[8:17:07 PM] [2025-08-05T19:17:07.692Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-2-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 5.3191775791205425% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 5.3191775791205425
+[8:17:07 PM] [2025-08-05T19:17:07.689Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-1-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 13.720893031701417% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 13.720893031701417
+[8:17:07 PM] [2025-08-05T19:17:07.687Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-9-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 18.411139974936603% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 18.411139974936603
+[8:17:07 PM] [2025-08-05T19:17:07.684Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-7-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 33.71945557788562% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 33.71945557788562
+[8:17:07 PM] [2025-08-05T19:17:07.682Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-4-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 7.61759610479686% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 7.61759610479686
+[8:17:07 PM] [2025-08-05T19:17:07.681Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-3-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 7.8929408222830775% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 7.8929408222830775
+[8:17:07 PM] [2025-08-05T19:17:07.679Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-1-raydium
+[8:17:07 PM] Configuration applied: mock mode, chains: solana
+[8:17:07 PM] Configuration applied: mock mode, chains: solana
+[8:17:07 PM] New opportunity: solana - raydium - 7.657979173291587% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 7.657979173291587
+[8:17:07 PM] [2025-08-05T19:17:07.667Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-0-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 37.95766756151625% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 37.95766756151625
+[8:17:07 PM] [2025-08-05T19:17:07.649Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-9-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 13.335453583684293% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 13.335453583684293
+[8:17:07 PM] [2025-08-05T19:17:07.649Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-8-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 20.805922059850186% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 20.805922059850186
+[8:17:07 PM] [2025-08-05T19:17:07.648Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-7-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 7.496579927872572% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 7.496579927872572
+[8:17:07 PM] [2025-08-05T19:17:07.636Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-6-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 15.763215852019924% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 15.763215852019924
+[8:17:07 PM] [2025-08-05T19:17:07.633Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-4-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 8.968629767554443% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 8.968629767554443
+[8:17:07 PM] [2025-08-05T19:17:07.632Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-2-raydium
+[8:17:07 PM] New opportunity: solana - raydium - 10.123601011687825% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 10.123601011687825
+[8:17:07 PM] [2025-08-05T19:17:07.628Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-1-raydium
+[8:17:07 PM] Configuration applied: mock mode, chains: solana
+[8:17:07 PM] New opportunity: solana - raydium - 26.475154340449464% APY
+[8:17:07 PM] DEBUG: Opportunity data - chain: solana, dex: raydium, apy: 26.475154340449464
+[8:17:07 PM] [2025-08-05T19:17:07.620Z] WebSocket: Received yield_opportunity - solana-raydium-mock-pool-0-raydium
+[8:16:46 PM] Loaded 1 swarms
+[8:16:46 PM] Loading swarms...
+[8:16:45 PM] Loaded 3 agents
+[8:16:45 PM] Loading agents...
+[8:16:43 PM] Swarm 02f9e872-d2f5-44c6-80f9-7cec5d10834a start command sent
+[8:16:41 PM] Agent 86963f53-d460-4fb4-ae5c-808112166962 start command sent
+[8:16:40 PM] Agent 9e4ec970-9748-4d04-858a-519884fd7868 start command sent
+[8:16:39 PM] Agent 3a0f51a1-b8ec-4a6f-8360-1d5c7e5374fa start command sent
+[8:16:25 PM] Loaded 1 swarms
+[8:16:25 PM] Loading swarms...
+[8:16:25 PM] Swarm "Swarm2" created successfully
+[8:15:29 PM] Loaded 3 agents
+[8:15:29 PM] Loading agents...
+[8:15:29 PM] Agent "RiskAgent" created successfully
+[8:14:58 PM] Loaded 2 agents
+[8:14:58 PM] Loading agents...
+[8:14:58 PM] Agent "AnalysisAgent" created successfully
+[8:14:41 PM] Loaded 1 agents
 
 
 

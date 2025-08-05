@@ -2,18 +2,21 @@ import { IAgentCommunication } from '../swarm/SwarmCoordinator';
 import { Logger } from '../utils/Logger';
 import { YieldOpportunity, AgentStatus, MessageType, MessagePriority, Pool } from '../types';
 import { RealDEXIntegrations } from '../defi/RealDEXIntegrations';
+import { CustomJuliaBridge } from '../../backend/CustomJuliaBridge';
 
 export class DiscoveryAgent {
   private client: IAgentCommunication;
   private chain: string;
   private logger: Logger;
   private dexIntegrations: RealDEXIntegrations;
+  private bridge: CustomJuliaBridge;
   private status: AgentStatus = AgentStatus.INACTIVE;
   private isRunning: boolean = false;
   private scanInterval: NodeJS.Timeout | null = null;
 
-  constructor(chain: string, client: IAgentCommunication, private globalConfig: any) {
+  constructor(chain: string, client: IAgentCommunication, private globalConfig: any, bridge: CustomJuliaBridge) {
     this.client = client;
+    this.bridge = bridge;
     this.chain = chain;
     this.logger = new Logger(`DiscoveryAgent-${chain}`);
     this.dexIntegrations = new RealDEXIntegrations(chain, globalConfig);
@@ -71,7 +74,17 @@ export class DiscoveryAgent {
     this.logger.debug(`Scanning for yield opportunities on ${this.chain}`);
 
     try {
-      // Get supported DEXes for this chain
+      // First, try LLM-based discovery
+      const llmOpportunities = await this.discoverWithLLM();
+      if (llmOpportunities && llmOpportunities.length > 0) {
+        this.logger.info(`Discovered ${llmOpportunities.length} opportunities on ${this.chain} using LLM`);
+        for (const opportunity of llmOpportunities) {
+          await this.broadcastOpportunity(opportunity);
+        }
+        return;
+      }
+
+      // Fallback to traditional discovery
       const supportedDEXes = await this.getSupportedDEXes();
       
       const opportunities: YieldOpportunity[] = [];
@@ -87,7 +100,7 @@ export class DiscoveryAgent {
       }
 
       // Filter and rank opportunities
-      const filteredOpportunities = this.filterOpportunities(opportunities);
+      const filteredOpportunities = await this.filterOpportunities(opportunities);
       
       // Send opportunities to Analysis Agent
       for (const opportunity of filteredOpportunities) {
@@ -196,26 +209,150 @@ export class DiscoveryAgent {
     return Math.min(riskScore, 1.0); // Cap at 1.0
   }
 
-  private filterOpportunities(opportunities: YieldOpportunity[]): YieldOpportunity[] {
-    // If in mock data mode, bypass filtering to ensure opportunities are always displayed
-    if (this.dexIntegrations.globalConfig.dataMode === 'mock') {
-      return opportunities;
+  private async filterOpportunities(opportunities: YieldOpportunity[]): Promise<YieldOpportunity[]> {
+    // First, try LLM-based filtering
+    const llmFiltered = await this.filterWithLLM(opportunities);
+    if (llmFiltered && llmFiltered.length > 0) {
+      this.logger.info(`LLM filtered ${opportunities.length} opportunities down to ${llmFiltered.length}`);
+      return llmFiltered;
     }
 
-    // Filter opportunities based on criteria
-    return opportunities.filter(opp => {
-      // Minimum APY threshold
-      if (opp.apy < 5) return false; // Less than 5% APY
-
-      // Maximum risk threshold
-      if (opp.riskScore > 0.8) return false; // Too risky
-
-      // Minimum TVL threshold
-      if (opp.tvl < 100000) return false; // Less than $100K TVL
-
-      return true;
+    // Fallback to traditional filtering
+    return opportunities.filter(opportunity => {
+      // Basic filtering criteria
+      return opportunity.apy > 5 && // Minimum 5% APY
+             opportunity.tvl > 100000 && // Minimum $100k TVL
+             opportunity.riskScore < 0.8; // Maximum 80% risk score
     });
   }
+
+  // --- LLM Integration Methods ---
+
+  private async discoverWithLLM(): Promise<YieldOpportunity[]> {
+    try {
+      this.logger.info(`Attempting LLM-based discovery on ${this.chain}...`);
+      
+      const marketData = await this.getMarketContext();
+      
+      const llmResult = await this.bridge.runCommand('llm.discover_opportunities', {
+        chain: this.chain,
+        market_data: marketData,
+        provider: 'echo',
+        config: {
+          model: 'gpt-4',
+          temperature: 0.7
+        }
+      });
+
+      if (llmResult && llmResult.response) {
+        this.logger.info('Successfully received LLM-discovered opportunities');
+        return this.parseLLMOpportunities(llmResult.response);
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('LLM discovery failed, falling back to traditional method:', error);
+      return [];
+    }
+  }
+
+  private parseLLMOpportunities(llmResponse: string): YieldOpportunity[] {
+    try {
+      const response = JSON.parse(llmResponse);
+      
+      if (response.opportunities && Array.isArray(response.opportunities)) {
+        return response.opportunities.map((opp: any) => ({
+          id: opp.id || `${opp.dex}-${opp.pool}-${this.chain}`,
+          chain: this.chain,
+          dex: opp.dex,
+          pool: opp.pool,
+          apy: opp.apy,
+          tvl: opp.tvl,
+          riskScore: opp.riskScore,
+          volume24h: opp.volume24h,
+          timestamp: Date.now()
+        }));
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('Failed to parse LLM discovery result:', error);
+      return [];
+    }
+  }
+
+  private async filterWithLLM(opportunities: YieldOpportunity[]): Promise<YieldOpportunity[]> {
+    try {
+      this.logger.info('Attempting LLM-based opportunity filtering...');
+      
+      const marketContext = await this.getMarketContext();
+      
+      const llmResult = await this.bridge.runCommand('llm.chat', {
+        provider: 'echo',
+        prompt: `Analyze these DeFi yield opportunities and select the best ones:
+        
+        Opportunities: ${JSON.stringify(opportunities)}
+        Market Context: ${JSON.stringify(marketContext)}
+        
+        Select opportunities that:
+        1. Have good risk-adjusted returns
+        2. Have sufficient liquidity
+        3. Are from reputable protocols
+        4. Have reasonable risk scores
+        
+        Return only the IDs of the best opportunities as a JSON array.
+        `,
+        config: {
+          model: 'gpt-4',
+          temperature: 0.7
+        }
+      });
+
+      if (llmResult && llmResult.response) {
+        return this.parseLLMFilterResult(llmResult.response, opportunities);
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('LLM filtering failed, using fallback:', error);
+      return [];
+    }
+  }
+
+  private async getMarketContext(): Promise<any> {
+    return {
+      chain: this.chain,
+      timestamp: Date.now(),
+      totalOpportunities: 0, // Will be set by caller
+      marketConditions: 'stable',
+      riskFreeRate: 0.05
+    };
+  }
+
+  private parseLLMFilterResult(llmResponse: string, opportunities: YieldOpportunity[]): YieldOpportunity[] {
+    try {
+      // Try to parse JSON response from LLM
+      const selectedIds = JSON.parse(llmResponse);
+      
+      if (Array.isArray(selectedIds)) {
+        return opportunities.filter(opp => selectedIds.includes(opp.id));
+      }
+      
+      // If response is not an array, try to extract IDs from text
+      const idMatches = llmResponse.match(/"([^"]+)"/g);
+      if (idMatches) {
+        const ids = idMatches.map(match => match.replace(/"/g, ''));
+        return opportunities.filter(opp => ids.includes(opp.id));
+      }
+      
+      return [];
+    } catch (error) {
+      this.logger.warn('Failed to parse LLM filter result:', error);
+      return [];
+    }
+  }
+
+  
 
   private async broadcastOpportunity(opportunity: YieldOpportunity): Promise<void> {
     await this.client.broadcastMessage(MessageType.YIELD_OPPORTUNITY, opportunity, `${this.chain}-discovery`, MessagePriority.HIGH);

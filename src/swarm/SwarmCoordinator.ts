@@ -33,7 +33,11 @@ export class SwarmCoordinator extends EventEmitter {
     this.agentCommunication = new AgentCommunication();
   }
 
-  public getAgentCommunication(): IAgentCommunication {
+  getBridge(): CustomJuliaBridge {
+    return this.bridge;
+  }
+
+  getAgentCommunication(): AgentCommunication {
     return this.agentCommunication;
   }
 
