@@ -143,3 +143,21 @@ charts/*.tgz
 # Local development
 .local/
 local/ 
+
+CLI_GUIDE.md
+cursor_just_a_casual_hello.md
+cursor_just_saying_hello.md
+DEMO_INSTRUCTIONS.md
+HUGGINGFACE_IMPL.txt
+RECENT_LOG_RESULT.txt
+# test.env
+LAST CHAT WITH AI.txt
+LAST CONTEXT FILE.md
+LATEST CONTEXT FILE.md
+PrevBounties.txt
+sa.txt
+SETUP.md
+test_llm.js
+TODO.md
+YieldSwarm_Whitepaper.md
+YIELD_SWARM_OVERVIEW.md
