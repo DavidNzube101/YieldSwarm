@@ -1,7 +1,7 @@
 # YieldSwarm: An AI-Powered Multi-Chain DeFi Yield Optimizer
 
 <p align="center">
-  <img src="https://i.imgur.com/5s2y4iR.png" alt="YieldSwarm Banner" width="600"/>
+  <img src="public/YieldSwarmBanner.png" alt="YieldSwarm Banner" width="600"/>
 </p>
 
 <p align="center">
