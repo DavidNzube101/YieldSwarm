@@ -6,10 +6,38 @@ using Statistics
 using LinearAlgebra
 using UUIDs
 using HTTP
-using DotEnv
 
-# Load environment variables from .env file
-DotEnv.config(path="../.env")
+# --- Custom .env loader ---
+function load_dotenv(path)
+    try
+        if !isfile(path)
+            println("Warning: .env file not found at $path")
+            return
+        end
+        for line in eachline(path)
+            line = strip(line)
+            if !isempty(line) && !startswith(line, '#')
+                if occursin('=', line)
+                    key, value = split(line, '=', limit=2)
+                    key = strip(key)
+                    value = strip(value)
+                    # Remove quotes if they exist
+                    if startswith(value, '"') && endswith(value, '"')
+                        value = value[2:end-1]
+                    end
+                    ENV[key] = value
+                end
+            end
+        end
+        println("Successfully loaded environment variables from $path")
+    catch e
+        println("Warning: Could not load .env file at $path. Error: $e")
+    end
+end
+
+# Load environment variables from ../test.env
+load_dotenv("../test.env")
+
 
 # Tell JSON.jl how to serialize UUIDs
 JSON.lower(id::UUID) = string(id)

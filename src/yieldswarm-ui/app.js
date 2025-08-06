@@ -271,12 +271,12 @@ class YieldSwarmDashboard {
         <tr>
           <td>${swarm.id}</td>
           <td>${swarm.name}</td>
-          <td>${swarm.algorithm || "N/A"}</td>
+          <td>${swarm.algorithm ? swarm.algorithm.type : "N/A"}</td>
           <td>
             <span class="status-dot ${swarm.status}"></span>
             ${swarm.status}
           </td>
-          <td>${swarm.agents || 0}</td>
+          <td>${swarm.agents ? swarm.agents.length : 0}</td>
           <td>
             <button class="action-btn start-btn" onclick="dashboard.startSwarm('${swarm.id}')"
                     ${swarm.status === "running" ? "disabled" : ""}>Start</button>

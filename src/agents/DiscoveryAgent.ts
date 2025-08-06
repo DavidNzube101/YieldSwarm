@@ -256,24 +256,57 @@ export class DiscoveryAgent {
     }
   }
 
+  private extractJson(text: string): any {
+    this.logger.debug(`Attempting to extract JSON from text: ${text}`);
+    const match = text.match(/```json\s*([\s\S]*?)\s*```|(?<json>{[\s\S]*}|\[[\s\S]*\])/);
+
+    if (match) {
+      const jsonString = match[1] || (match.groups ? match.groups['json'] : null);
+      if (jsonString) {
+        try {
+          const result = JSON.parse(jsonString);
+          this.logger.debug('Successfully parsed extracted JSON.');
+          return result;
+        } catch (error) {
+          this.logger.warn(`Failed to parse extracted JSON string: ${jsonString}`, error);
+          return null;
+        }
+      }
+    }
+    this.logger.warn('No valid JSON block found in the text.');
+    return null;
+  }
+
   private parseLLMOpportunities(llmResponse: string): YieldOpportunity[] {
     try {
-      const response = JSON.parse(llmResponse);
+      const response = this.extractJson(llmResponse);
       
-      if (response.opportunities && Array.isArray(response.opportunities)) {
-        return response.opportunities.map((opp: any) => ({
-          id: opp.id || `${opp.dex}-${opp.pool}-${this.chain}`,
-          chain: this.chain,
-          dex: opp.dex,
-          pool: opp.pool,
-          apy: opp.apy,
-          tvl: opp.tvl,
-          riskScore: opp.riskScore,
-          volume24h: opp.volume24h,
-          timestamp: Date.now()
-        }));
+      const mapOpp = (opp: any): YieldOpportunity => ({
+        id: opp.id || `${opp.dex}-${opp.pool}-${this.chain}`,
+        chain: this.chain,
+        dex: opp.dex,
+        pool: opp.pool,
+        poolAddress: opp.poolAddress || '',
+        token0: opp.token0 || '',
+        token1: opp.token1 || '',
+        token0Symbol: opp.token0Symbol || '',
+        token1Symbol: opp.token1Symbol || '',
+        apy: opp.apy || 0,
+        tvl: opp.tvl || 0,
+        volume24h: opp.volume24h || 0,
+        fee: opp.fee || 0,
+        riskScore: opp.riskScore || 0.5,
+      });
+
+      if (Array.isArray(response)) {
+        return response.map(mapOpp);
       }
       
+      if (response && response.opportunities && Array.isArray(response.opportunities)) {
+        return response.opportunities.map(mapOpp);
+      }
+      
+      this.logger.warn('LLM response did not contain a valid opportunities array.');
       return [];
     } catch (error) {
       this.logger.warn('Failed to parse LLM discovery result:', error);
@@ -289,22 +322,17 @@ export class DiscoveryAgent {
       
       const llmResult = await this.bridge.runCommand('llm.chat', {
         provider: 'echo',
-        prompt: `Analyze these DeFi yield opportunities and select the best ones:
+        prompt: `Analyze these DeFi yield opportunities and select the best ones based on a balance of high APY, high TVL, and low risk.
         
-        Opportunities: ${JSON.stringify(opportunities)}
+        Opportunities: ${JSON.stringify(opportunities.map(o => ({id: o.id, apy: o.apy, tvl: o.tvl, riskScore: o.riskScore})))}
         Market Context: ${JSON.stringify(marketContext)}
         
-        Select opportunities that:
-        1. Have good risk-adjusted returns
-        2. Have sufficient liquidity
-        3. Are from reputable protocols
-        4. Have reasonable risk scores
-        
-        Return only the IDs of the best opportunities as a JSON array.
+        Return ONLY a JSON array of the string IDs for the opportunities you select. Do not include any other text, explanation, or markdown.
+        Example response: ["solana-raydium-pool-1", "solana-orca-pool-5"]
         `,
         config: {
           model: 'gpt-4',
-          temperature: 0.7
+          temperature: 0.5
         }
       });
 
@@ -331,20 +359,26 @@ export class DiscoveryAgent {
 
   private parseLLMFilterResult(llmResponse: string, opportunities: YieldOpportunity[]): YieldOpportunity[] {
     try {
-      // Try to parse JSON response from LLM
-      const selectedIds = JSON.parse(llmResponse);
+      const selectedIds = this.extractJson(llmResponse);
       
       if (Array.isArray(selectedIds)) {
+        // Handle case where LLM returns an array of IDs
         return opportunities.filter(opp => selectedIds.includes(opp.id));
       }
       
-      // If response is not an array, try to extract IDs from text
+      // Handle case where LLM returns an object with a key like 'selected_ids'
+      if (selectedIds && selectedIds.selected_ids && Array.isArray(selectedIds.selected_ids)) {
+        return opportunities.filter(opp => selectedIds.selected_ids.includes(opp.id));
+      }
+
+      // Fallback for plain text response
       const idMatches = llmResponse.match(/"([^"]+)"/g);
       if (idMatches) {
         const ids = idMatches.map(match => match.replace(/"/g, ''));
         return opportunities.filter(opp => ids.includes(opp.id));
       }
       
+      this.logger.warn('Could not parse a valid array of IDs from the LLM filter response.');
       return [];
     } catch (error) {
       this.logger.warn('Failed to parse LLM filter result:', error);

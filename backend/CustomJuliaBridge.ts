@@ -78,7 +78,7 @@ export class CustomJuliaBridge {
     });
   }
 
-  public runCommand(command: string, params: any = {}, timeout: number = 5000): Promise<any> {
+  public runCommand(command: string, params: any = {}, timeout: number = 30000): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!this.client) {
         return reject(new Error('Not connected to Julia server.'));
