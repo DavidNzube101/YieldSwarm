@@ -64,7 +64,7 @@ Before you begin, ensure you have the following installed:
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/your-username/MCDYOS.git
+    git clone https://github.com/DavidNzube101/YieldSwarm.git
     cd MCDYOS
     ```
 
@@ -81,7 +81,7 @@ Before you begin, ensure you have the following installed:
     Open `test.env` and add your Hugging Face API token. This is **required** for the AI features to work.
     ```env
     # ... other variables
-    HF_TOKEN="your_hugging_face_api_token_here"
+    HF_TOKEN=YOUR_HUGGINGFACE_ACCESS_TOKEN
     ```
 
 4.  **Build the Project**
@@ -156,7 +156,7 @@ The swarm will coordinate the agents.
 1.  In the **Swarm Management** panel, click the **"Create Swarm"** button.
 2.  Fill out the form:
     -   **Swarm Name:** `Swarm1`
-    -   **Optimization Algorithm:** `PortfolioOptimization`
+    -   **Optimization Algorithm:** `Morden Portfolio Theory` _(only algorithm currently supported)_
     -   **Available Agents:** Check the box next to **`AnalysisAgent`**.
 3.  Click **"Create Swarm"**.
 
@@ -165,7 +165,7 @@ The swarm will coordinate the agents.
 Activate the system by starting the swarm and then the individual agents.
 
 1.  **Start the Swarm:** In the **Swarm Management** panel, find `Swarm1` and click its **"Start"** button.
-2.  **Start the Agents:** In the **Agent Management** panel, click the **"Start"** button for each of the three agents: `DiscoveryAgent`, `AnalysisAgent`, and `RiskAgent`.
+2.  **Start the Agents:** In the **Agent Management** panel, click the **"Start"** button for each of the three agents: `DiscoveryAgent`, `AnalysisAgent`, and `RiskAgent`. (_note: you would need to click the refresh button in the agents panel and swarm panel to refresh their status from `stopped` to `running`._)
 
 ### Step 6: Monitor the System
 
