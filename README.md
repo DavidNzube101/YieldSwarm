@@ -65,12 +65,12 @@ Before you begin, ensure you have the following installed:
 1.  **Clone the Repository**
     ```bash
     git clone https://github.com/DavidNzube101/YieldSwarm.git
-    cd MCDYOS
+    cd YieldSwarm
     ```
 
 2.  **Install Node.js Dependencies**
     ```bash
-    pnpm install
+    pnpm i
     ```
 
 3.  **Set Up Environment Variables**
