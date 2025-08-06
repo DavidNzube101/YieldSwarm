@@ -2,10 +2,10 @@
   <img src="public/YieldSwarmBanner.png" alt="YieldSwarm Banner" width="600"/>
 </p>
 
-# YieldSwarm: An AI-Powered Multi-Chain DeFi Yield Optimizer
+# YieldSwarm: An AI-Powered Yield Optimizer
 
 <p align="center">
-  <strong>An intelligent multi-agent system that autonomously discovers, analyzes, and executes optimal yield farming strategies across multiple blockchain networks using JuliaOS's swarm intelligence and AI capabilities.</strong>
+  <strong>An intelligent multi-agent swarm* system that autonomously discovers, analyzes, and executes optimal yield farming strategies across multiple blockchain networks* using JuliaOS's swarm intelligence and AI capabilities.</strong>
 </p>
 
 ---
